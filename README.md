@@ -1,4 +1,4 @@
 # crouge
 A multiplayer roguelike
 # Contributors
--Jonah Spencer
+-Jonah Spencer -Definitely Contributes twice
