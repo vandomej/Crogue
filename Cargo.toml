@@ -1,0 +1,6 @@
+[package]
+name = "crogue"
+version = "0.1.0"
+authors = ["Sebastian Benjamin <sebastiancbenjamin@gmail.com>"]
+
+[dependencies]
