@@ -1,2 +1,16 @@
 # crogue
-CASS Rogue, or crogue, is a realtime Hack/Rogue-like with a SciFi setting that you can play on a LAN.
+CASS Rogue, or crogue, is a multiplayer roguelike developed by OSU-CASS empolyees.
+
+## Building
+```
+$ sudo apt-get install gcc g++ make libsdl1.2-dev
+$ cd crogue
+$ cargo install
+$ cargo build
+```
+
+## Running
+```
+$ cd crogue
+$ cargo run
+```
