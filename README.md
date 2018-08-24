@@ -1,5 +1,5 @@
 # crogue
-CASS Rogue, or crogue, is a multiplayer roguelike developed OSU-CASS empolyees.
+CASS Rogue, or crogue, is a multiplayer roguelike developed by OSU-CASS empolyees.
 
 ## Building
 ```
