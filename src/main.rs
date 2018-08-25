@@ -1,45 +1,18 @@
 extern crate tcod;
 
-mod player;
+mod game;
 
 
 use tcod::console::*;
 use tcod::colors;
-use std::{thread, time};
-use player::Player;
+use tcod::input::KeyPressFlags;
+
+use self::game::Game;
 
 
 const SCREEN_WIDTH: i32 = 80;
 const SCREEN_HEIGHT: i32 = 50;
-const LIMIT_FPS: i32 = 20;
-
-
-fn handle_keys(root: &mut Root, player_x: &mut i32, player_y: &mut i32) -> bool {
-    use tcod::input::Key;
-    use tcod::input::KeyCode::*;
-
-    let key = root.wait_for_keypress(true);
-    match key {
-        Key { code: Enter, alt: true, .. } => {
-
-            // Alt+Enter: toggle fullscreen
-            let fullscreen = root.is_fullscreen();
-            root.set_fullscreen(!fullscreen);
-        }
-        Key { code: Escape, .. } => return true,  // exit game
-
-        // movement keys
-        Key { code: Up, .. } => *player_y -= 1,
-        Key { code: Down, .. } => *player_y += 1,
-        Key { code: Left, .. } => *player_x -= 1,
-        Key { code: Right, .. } => *player_x += 1,
-
-        _ => {},
-    }
-
-    return false;
-}
-
+const FPS_LIMIT: i32 = 20;
 
 fn main() {
     let mut root = Root::initializer()
@@ -49,22 +22,23 @@ fn main() {
         .title("crogue")
         .init();
 
-    tcod::system::set_fps(LIMIT_FPS);
+    tcod::system::set_fps(FPS_LIMIT);
 
-    let mut player = Player::new(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    let mut game = Game::new();
 
     while !root.window_closed() {
         root.set_default_foreground(colors::WHITE);
-        root.put_char(player.x, player.y, '@', BackgroundFlag::None);
+
+        let key = root.check_for_keypress(KeyPressFlags::all());
+
+        let game_data = game.update(key);
+        game.draw(&mut root);
 
         root.flush();
 
-        root.put_char(player.x, player.y, ' ', BackgroundFlag::None);
+        game.clear(&mut root);
 
-        // handle keys and exit game if needed
-        let exit = handle_keys(&mut root, &mut player.x, &mut player.y);
-
-        if exit {
+        if game_data.quit == true {
             break
         }
     }
