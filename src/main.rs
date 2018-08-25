@@ -2,10 +2,10 @@ extern crate tcod;
 
 mod player;
 
-
+use std::{thread, time};
 use tcod::console::*;
 use tcod::colors;
-use std::{thread, time};
+use tcod::input::KeyPressFlags;
 use player::Player;
 
 
@@ -18,21 +18,21 @@ fn handle_keys(root: &mut Root, player_x: &mut i32, player_y: &mut i32) -> bool 
     use tcod::input::Key;
     use tcod::input::KeyCode::*;
 
-    let key = root.wait_for_keypress(true);
+    let key = root.check_for_keypress(KeyPressFlags::empty());
     match key {
-        Key { code: Enter, alt: true, .. } => {
+        Some(Key { code: Enter, alt: true, .. }) => {
 
             // Alt+Enter: toggle fullscreen
             let fullscreen = root.is_fullscreen();
             root.set_fullscreen(!fullscreen);
         }
-        Key { code: Escape, .. } => return true,  // exit game
+        Some(Key { code: Escape, .. }) => return true,  // exit game
 
         // movement keys
-        Key { code: Up, .. } => *player_y -= 1,
-        Key { code: Down, .. } => *player_y += 1,
-        Key { code: Left, .. } => *player_x -= 1,
-        Key { code: Right, .. } => *player_x += 1,
+        Some(Key { code: Up, .. }) => *player_y -= 1,
+        Some(Key { code: Down, .. }) => *player_y += 1,
+        Some(Key { code: Left, .. }) => *player_x -= 1,
+        Some(Key { code: Right, .. }) => *player_x += 1,
 
         _ => {},
     }
