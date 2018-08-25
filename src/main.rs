@@ -18,7 +18,7 @@ fn handle_keys(root: &mut Root, player_x: &mut i32, player_y: &mut i32) -> bool 
     use tcod::input::Key;
     use tcod::input::KeyCode::*;
 
-    let key = root.check_for_keypress(KeyPressFlags::empty());
+    let key = root.check_for_keypress(KeyPressFlags::all());
     match key {
         Some(Key { code: Enter, alt: true, .. }) => {
 
@@ -63,6 +63,8 @@ fn main() {
 
         // handle keys and exit game if needed
         let exit = handle_keys(&mut root, &mut player.x, &mut player.y);
+
+        println!("HANDLING");
 
         if exit {
             break
