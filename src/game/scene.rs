@@ -2,16 +2,19 @@ use tcod::input::Key;
 use tcod::console::*;
 
 use super::actors::player::Player;
+use super::map::tile::Wall;
 
 #[derive(Debug)]
 pub struct Scene {
-    player: Player
+    player: Player,
+    wall: Wall
 }
 
 impl Scene {
     pub fn new() -> Scene {
         return Scene {
-            player: Player:: new(25, 25)
+            player: Player:: new(25, 25),
+            wall: Wall:: new(26, 26)
         }
     }
 
@@ -21,6 +24,7 @@ impl Scene {
 
     pub fn draw(&self, window: &Root) {
         self.player.draw(window);
+        self.wall.draw(window);
     }
 
     pub fn clear(&self, window: &Root) {
