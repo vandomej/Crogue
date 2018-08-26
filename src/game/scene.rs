@@ -3,7 +3,6 @@ use tcod::console::*;
 
 use super::actors::player::Player;
 
-
 #[derive(Debug)]
 pub struct Scene {
     player: Player
