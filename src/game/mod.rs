@@ -42,7 +42,9 @@ impl Game {
             _ => {},
         }
 
-        self.scene.update(key);
+        if key.is_some() && key.unwrap().pressed {
+            self.scene.update(key);
+        }
         return game_data;
     }
 
