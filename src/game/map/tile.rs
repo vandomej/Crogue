@@ -18,20 +18,14 @@ pub trait Tile {
 #[derive(Debug)]
 pub struct Wall{
     pub x: i32,
-    pub y: i32
+    pub y: i32,
+    pub walkeable: bool,
+    pub see_through: bool
 }
 
 impl Tile for Wall {
     fn new(x: i32, y: i32) -> Wall {
-        return Wall{x: x, y: y};
-    }
-
-    fn walkeable(&self)->bool{
-        return false;
-    }
-
-    fn see_through(&self)->bool{
-        return false;
+        return Wall{x: x, y: y, walkeable: false, see_through: false};
     }
 
     fn draw(&self, mut window: &Root) {
