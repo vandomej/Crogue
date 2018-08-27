@@ -3,6 +3,7 @@ use tcod::console::*;
 
 use super::actors::player::Player;
 use super::map::tile::Wall;
+use game::map::tile::Tile;
 
 #[derive(Debug)]
 pub struct Scene {
@@ -13,8 +14,8 @@ pub struct Scene {
 impl Scene {
     pub fn new() -> Scene {
         return Scene {
-            player: Player:: new(25, 25),
-            wall: Wall:: new(26, 26)
+            player: Player::new(25, 25),
+            wall: Wall::new(26, 26)
         }
     }
 

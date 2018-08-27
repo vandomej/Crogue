@@ -1,8 +1,7 @@
 use tcod::console::*;
 
 
-
-pub trait Tile{
+pub trait Tile {
     fn new(x: i32, y: i32) -> Self;
 
     fn walkeable(&self)->bool{
@@ -22,9 +21,9 @@ pub struct Wall{
     pub y: i32
 }
 
-impl Tile for Wall{
-    fn new(x: i32, y: i32) -> Wall{
-        Wall{x: x, y: y}
+impl Tile for Wall {
+    fn new(x: i32, y: i32) -> Wall {
+        return Wall{x: x, y: y};
     }
 
     fn walkeable(&self)->bool{
@@ -34,8 +33,8 @@ impl Tile for Wall{
     fn see_through(&self)->bool{
         return false;
     }
-    
+
     fn draw(&self, mut window: &Root) {
         window.put_char(self.x, self.y, '#', BackgroundFlag::None);
     }
-} 
+}
