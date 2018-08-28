@@ -2,7 +2,7 @@ use tcod::input::Key;
 use tcod::console::*;
 
 use super::actors::player::Player;
-use game::mapgen;
+use game::map::mapgen;
 use game::map::tile::Tile;
 
 

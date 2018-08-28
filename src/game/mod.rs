@@ -2,7 +2,6 @@ extern crate tcod;
 
 mod scene;
 mod actors;
-mod mapgen;
 mod map;
 
 
