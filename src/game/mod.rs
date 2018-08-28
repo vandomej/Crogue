@@ -2,6 +2,7 @@ extern crate tcod;
 
 mod scene;
 mod actors;
+mod mapgen;
 mod map;
 
 
@@ -11,7 +12,6 @@ use tcod::console::*;
 use self::scene::Scene;
 
 
-#[derive(Debug)]
 pub struct Game {
     scene: Scene
 }
