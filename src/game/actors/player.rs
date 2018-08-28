@@ -30,10 +30,12 @@ impl Player {
         }
 
         for elem in map {
-            if (elem.get_x() == (self.x + proposed_x)) &&
-                (elem.get_y() == (self.y + proposed_y)) {
-                proposed_x = 0;
-                proposed_y = 0;
+            if elem.get_walkable() == false {
+                if (elem.get_x() == (self.x + proposed_x)) &&
+                    (elem.get_y() == (self.y + proposed_y)) {
+                        proposed_x = 0;
+                        proposed_y = 0;
+                    }
             }
         }
 
