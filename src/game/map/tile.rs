@@ -3,7 +3,8 @@ use tcod::console::*;
 
 pub trait Tile {
     fn new(x: i32, y: i32) -> Self where Self: Sized;
-
+    fn get_x(&self) -> i32;
+    fn get_y(&self) -> i32;
     fn draw(&self, window: &Root);
 }
 
@@ -19,6 +20,14 @@ pub struct Wall {
 impl Tile for Wall {
     fn new(x: i32, y: i32) -> Wall {
         return Wall{x, y, walkable: false, see_through: false};
+    }
+
+    fn get_x(&self) -> i32 {
+        return self.x;
+    }
+
+    fn get_y(&self) -> i32 {
+        return self.y;
     }
 
     fn draw(&self, mut window: &Root) {

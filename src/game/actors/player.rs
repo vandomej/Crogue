@@ -30,8 +30,8 @@ impl Player {
         }
 
         for elem in map {
-            if (elem.x == (self.x + proposed_x)) &&
-                (elem.y == (self.y + proposed_y)) {
+            if (elem.get_x() == (self.x + proposed_x)) &&
+                (elem.get_y() == (self.y + proposed_y)) {
                 proposed_x = 0;
                 proposed_y = 0;
             }
