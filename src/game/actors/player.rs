@@ -1,6 +1,8 @@
 use tcod::input::Key;
 use tcod::console::*;
 
+use game::map::tile::Tile;
+
 
 #[derive(Debug)]
 pub struct Player {
@@ -13,16 +15,30 @@ impl Player {
         return Player {x, y};
     }
 
-    pub fn update(&mut self, key: Option<Key>) {
+    pub fn update(&mut self, key: Option<Key>, map: & Vec<Box<Tile>>) {
         use tcod::input::KeyCode::*;
 
+        let mut proposed_x = 0;
+        let mut proposed_y = 0;
+
         match key {
-            Some(Key { code: Up, .. }) => self.y -= 1,
-            Some(Key { code: Down, .. }) => self.y += 1,
-            Some(Key { code: Left, .. }) => self.x -= 1,
-            Some(Key { code: Right, .. }) => self.x += 1,
+            Some(Key { code: Up, .. }) => proposed_y -= 1,
+            Some(Key { code: Down, .. }) => proposed_y += 1,
+            Some(Key { code: Left, .. }) => proposed_x -= 1,
+            Some(Key { code: Right, .. }) => proposed_x += 1,
             _ => {},
         }
+
+        for elem in map {
+            if (elem.x == (self.x + proposed_x)) &&
+                (elem.y == (self.y + proposed_y)) {
+                proposed_x = 0;
+                proposed_y = 0;
+            }
+        }
+
+        self.x += proposed_x;
+        self.y += proposed_y;
     }
 
     pub fn draw(&self, mut window: &Root) {
