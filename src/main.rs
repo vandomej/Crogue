@@ -12,7 +12,7 @@ use self::game::Game;
 
 const SCREEN_WIDTH: i32 = 80;
 const SCREEN_HEIGHT: i32 = 50;
-const FPS_LIMIT: i32 = 20;
+const FPS_LIMIT: i32 = 30;
 
 fn main() {
     let mut root = Root::initializer()
