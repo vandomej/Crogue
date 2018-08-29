@@ -20,7 +20,7 @@ impl Scene {
     }
 
     pub fn update(&mut self, key: Option<Key>) {
-        self.player.update(key);
+        self.player.update(key, &self.map);
     }
 
     pub fn draw(&self, window: &Root) {
