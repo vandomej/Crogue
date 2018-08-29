@@ -1,12 +1,30 @@
-use game::map::tile::Tile;
-use game::map::tile::Wall;
+use game::map::tile::*;
 use tcod::bsp::*;
 
-pub fn dummy_gen() -> Vec<Box<Tile>> {
-    let mut ret: Vec<Box<Tile>> = Vec::new();
-    ret.push(Box::new(Wall::new(20, 20)));
+fn create_tile(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
+    if w == 0 || w == map_width-1 || h == 0 || h == map_height-1 {
+        Box::new(Wall::new(w, h))
+    } else {
+        Box::new(Floor::new(w, h))
+    }
+}
 
-    return ret;
+pub fn dummy_gen(map_width: i32, map_height: i32) -> Vec<Vec<Box<Tile>>> {
+    let mut container: Vec<Vec<Box<Tile>>> = Vec::new();
+
+    for h in 0..map_height {
+        let mut row: Vec<Box<Tile>> = Vec::new();
+
+        for w in 0..map_width {
+            let entry = create_tile(w, h, map_width, map_height);
+
+            row.push(entry);
+        }
+
+        container.push(row);
+    }
+
+    return container;
 }
 
 fn box_draw(map: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32, h: i32) {

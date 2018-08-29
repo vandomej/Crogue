@@ -10,7 +10,6 @@ pub trait Tile {
 }
 
 
-#[derive(Debug)]
 pub struct Wall {
     pub x: i32,
     pub y: i32,
@@ -37,5 +36,35 @@ impl Tile for Wall {
 
     fn draw(&self, mut window: &Root) {
         window.put_char(self.x, self.y, '#', BackgroundFlag::None);
+    }
+}
+
+
+pub struct Floor {
+    pub x: i32,
+    pub y: i32,
+    pub walkable: bool,
+    pub see_through: bool
+}
+
+impl Tile for Floor {
+    fn new(x: i32, y: i32) -> Floor {
+        return Floor{x, y, walkable: true, see_through: true};
+    }
+
+    fn get_x(&self) -> i32 {
+        return self.x;
+    }
+
+    fn get_y(&self) -> i32 {
+        return self.y;
+    }
+
+    fn get_walkable(&self) -> bool {
+        return self.walkable;
+    }
+
+    fn draw(&self, mut window: &Root) {
+        window.put_char(self.x, self.y, '.', BackgroundFlag::None);
     }
 }
