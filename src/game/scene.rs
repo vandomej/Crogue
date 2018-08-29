@@ -15,7 +15,7 @@ impl Scene {
     pub fn new() -> Scene {
         return Scene {
             player: Player::new(25, 25),
-            map: mapgen::dummy_gen()
+            map: mapgen::bsp_gen(5, 5, 5, 0.4, 0.5)
         }
     }
 

@@ -1,9 +1,61 @@
 use game::map::tile::Tile;
 use game::map::tile::Wall;
+use tcod::bsp::*;
 
 pub fn dummy_gen() -> Vec<Box<Tile>> {
     let mut ret: Vec<Box<Tile>> = Vec::new();
     ret.push(Box::new(Wall::new(20, 20)));
 
+    return ret;
+}
+
+fn box_draw(map: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32, h: i32) {
+    
+    //map.set_default_foreground(tcod::colors::Color::new(rand::random::<u8>(), rand::random::<u8>(), rand::random::<u8>()));
+    for i in (x)..(x + w){
+        /*
+        root.put_char(i , y + 1, 205 as u8 as char, BackgroundFlag::None);
+        root.put_char(i, y + h - 1, 205 as u8 as char, BackgroundFlag::None);
+        */
+        map.push(Box::new(Wall::new(i, y )));
+        map.push(Box::new(Wall::new(i, y + h)));
+    }
+    for i in (y)..(y + h) {
+        /*
+        root.put_char(x + 1, i, 186 as u8 as char, BackgroundFlag::None);
+        root.put_char(x + w - 1, i, 186 as u8 as char, BackgroundFlag::None);
+        */
+        map.push(Box::new(Wall::new(x, i)));
+        map.push(Box::new(Wall::new(x + w , i)));
+    }
+    map.push(Box::new(Wall::new(x + w, y + h)));
+    /*
+    root.put_char(x + w - 1, y + h - 1, /*'╝'*/ 188 as u8 as char, BackgroundFlag::None);
+    root.put_char(x + 1, y + 1,/*'╔'*/201 as u8 as char, BackgroundFlag::None);
+    root.put_char(x + w - 1, y + 1, /*'╗'*/187 as u8 as char, BackgroundFlag::None);
+    root.put_char(x + 1, y + h - 1, /*'╚'*/200 as u8 as char, BackgroundFlag::None);
+    root.flush();*/
+    //═║╔╗╚╝
+}
+
+pub fn bsp_gen(recursion_levels:     i32, 
+               min_horizontal_size:  i32, 
+               min_vertical_size:    i32,
+               max_horizontal_ratio: f32,
+               max_vertical_ratio:   f32
+    ) -> Vec<Box<Tile>> {
+    let mut ret: Vec<Box<Tile>> = Vec::new();
+    let mut bsp = Bsp::new_with_size(0, 0, 79, 49);
+    bsp.split_recursive(Option::None, recursion_levels, 
+                                      min_horizontal_size, 
+                                      min_vertical_size, 
+                                      max_horizontal_ratio, 
+                                      max_vertical_ratio);
+    bsp.traverse(TraverseOrder::LevelOrder, |node| {
+        //if node.is_leaf() {
+            box_draw(&mut ret, node.x, node.y, node.w, node.h);
+        //}
+        return true;
+    });
     return ret;
 }
