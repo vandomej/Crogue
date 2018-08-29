@@ -15,7 +15,7 @@ impl Player {
         return Player {x, y};
     }
 
-    pub fn update(&mut self, key: Option<Key>, map: & Vec<Box<Tile>>) {
+    pub fn update(&mut self, key: Option<Key>, map: &Vec<Vec<Box<Tile>>>) {
         use tcod::input::KeyCode::*;
 
         let mut proposed_x = 0;
@@ -29,14 +29,11 @@ impl Player {
             _ => {},
         }
 
-        for elem in map {
-            if elem.get_walkable() == false {
-                if (elem.get_x() == (self.x + proposed_x)) &&
-                    (elem.get_y() == (self.y + proposed_y)) {
-                        proposed_x = 0;
-                        proposed_y = 0;
-                    }
-            }
+        if map[(self.x + proposed_x) as usize][(self.y + proposed_y) as usize]
+            .get_walkable() == false {
+
+            proposed_x = 0;
+            proposed_y = 0;
         }
 
         self.x += proposed_x;
