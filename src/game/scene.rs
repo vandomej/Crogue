@@ -8,14 +8,14 @@ use game::map::tile::Tile;
 
 pub struct Scene {
     player: Player,
-    map: Vec<Box<Tile>>
+    map: Vec<Vec<Box<Tile>>>
 }
 
 impl Scene {
     pub fn new() -> Scene {
         return Scene {
             player: Player::new(25, 25),
-            map: mapgen::dummy_gen()
+            map: mapgen::dummy_gen(45, 45)
         }
     }
 
@@ -24,11 +24,13 @@ impl Scene {
     }
 
     pub fn draw(&self, window: &Root) {
-        self.player.draw(window);
-
-        for elem in &self.map {
-            elem.draw(window);
+        for container in &self.map {
+            for elem in container {
+                elem.draw(window);
+            }
         }
+
+        self.player.draw(window);
     }
 
     pub fn clear(&self, window: &Root) {
