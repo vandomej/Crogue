@@ -5,3 +5,4 @@ authors = ["Sebastian Benjamin <sebastiancbenjamin@gmail.com>"]
 
 [dependencies]
 tcod="0.12"
+rand="0.5.5"

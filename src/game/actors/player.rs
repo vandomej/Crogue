@@ -29,7 +29,7 @@ impl Player {
             _ => {},
         }
 
-        if map[(self.x + proposed_x) as usize][(self.y + proposed_y) as usize]
+        if map[(self.y + proposed_y) as usize][(self.x + proposed_x) as usize]
             .get_walkable() == false {
 
             proposed_x = 0;
