@@ -1,11 +1,11 @@
 use tcod::console::*;
 
-
 pub trait Tile {
     fn new(x: i32, y: i32) -> Self where Self: Sized;
     fn get_x(&self) -> i32;
     fn get_y(&self) -> i32;
     fn get_walkable(&self) -> bool;
+    fn get_see_through(&self) -> bool;
     fn draw(&self, window: &Root);
 }
 
@@ -32,6 +32,10 @@ impl Tile for Wall {
 
     fn get_walkable(&self) -> bool {
         return self.walkable;
+    }
+
+    fn get_see_through(&self) -> bool {
+        return self.see_through;
     }
 
     fn draw(&self, mut window: &Root) {
@@ -64,7 +68,11 @@ impl Tile for Floor {
         return self.walkable;
     }
 
+    fn get_see_through(&self) -> bool {
+        return self.see_through;
+    }
+
     fn draw(&self, mut window: &Root) {
-        window.put_char(self.x, self.y, '.', BackgroundFlag::None);
+        window.put_char(self.x, self.y, '.', BackgroundFlag::Set);
     }
 }

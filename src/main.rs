@@ -2,7 +2,6 @@ extern crate tcod;
 
 mod game;
 
-
 use tcod::console::*;
 use tcod::colors;
 use tcod::input::KeyPressFlags;
@@ -23,6 +22,8 @@ fn main() {
         .init();
 
     tcod::system::set_fps(FPS_LIMIT);
+
+    root.clear();
 
     let mut game = Game::new();
 
