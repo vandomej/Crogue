@@ -23,8 +23,6 @@ fn main() {
 
     tcod::system::set_fps(FPS_LIMIT);
 
-    root.clear();
-
     let mut game = Game::new();
 
     while !root.window_closed() {

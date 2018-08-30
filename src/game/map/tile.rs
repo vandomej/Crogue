@@ -7,6 +7,7 @@ pub trait Tile {
     fn get_walkable(&self) -> bool;
     fn get_see_through(&self) -> bool;
     fn draw(&self, window: &Root);
+    fn clear(&self, window: &Root);
 }
 
 
@@ -41,6 +42,10 @@ impl Tile for Wall {
     fn draw(&self, mut window: &Root) {
         window.put_char(self.x, self.y, '#', BackgroundFlag::None);
     }
+
+    fn clear(&self, mut window: &Root) {
+        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
+    }
 }
 
 
@@ -74,5 +79,9 @@ impl Tile for Floor {
 
     fn draw(&self, mut window: &Root) {
         window.put_char(self.x, self.y, '.', BackgroundFlag::Set);
+    }
+
+    fn clear(&self, mut window: &Root) {
+        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
 }
