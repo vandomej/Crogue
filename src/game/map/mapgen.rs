@@ -1,7 +1,7 @@
 extern crate rand;
 use game::map::tile::*;
 use tcod::bsp::*;
-use self::rand::{thread_rng, Rng};
+use tcod::random::*;
 use std::cmp::{max, min};
 
 fn create_tile(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
@@ -32,7 +32,7 @@ pub fn dummy_gen(map_width: i32, map_height: i32) -> Vec<Vec<Box<Tile>>> {
 
 fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32) {
     
-    //map.set_default_foreground(tcod::colors::Color::new(rand::random::<u8>(), rand::random::<u8>(), rand::random::<u8>()));
+        //map.set_default_foreground(tcod::colors::Color::new(rand::random::<u8>(), rand::random::<u8>(), rand::random::<u8>()));
         /*
         root.put_char(i , y + 1, 205 as u8 as char, BackgroundFlag::None);
         root.put_char(i, y + h - 1, 205 as u8 as char, BackgroundFlag::None);
@@ -45,11 +45,12 @@ fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32) {
         root.flush();
         //═║╔╗╚╝
         */
-    let mut rng = thread_rng();
-    let mut x1 = rng.gen_range(x, x + w);
-    let mut x2 = rng.gen_range(min(x1, x + w), max(x1, x + w) + 1);
-    let mut y1 = rng.gen_range(y, y + h);
-    let mut y2 = rng.gen_range(min(y1, y + h), max(y1, y + h) + 1);
+    //let mut rng = thread_rng();
+    let rng = Rng::new_with_seed(Algo::MT, 1337);
+    let mut x1 = rng.get_int(x, x + w + 1);
+    let mut x2 = rng.get_int(min(x1, x + w), max(x1, x + w) + 1);
+    let mut y1 = rng.get_int(y, y + h + 1);
+    let mut y2 = rng.get_int(min(y1, y + h), max(y1, y + h) + 1);
     let min_area = 30;
     if w * h  <= min_area {
         return;
@@ -59,10 +60,10 @@ fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32) {
             y1 > y && y2 < y + h &&
            (x2 - x1) * (y2 - y1) >= min_area) {
         if counter == 0 { return; } else { counter -= 1; }
-        x1 = rng.gen_range(x, x + w + 1);
-        x2 = rng.gen_range(min(x1, x + w), max(x1, x + w) + 1);
-        y1 = rng.gen_range(y, y + h + 1);
-        y2 = rng.gen_range(min(y1, y + h), max(y1, y + h) + 1);
+        x1 = rng.get_int(x, x + w + 1);
+        x2 = rng.get_int(min(x1, x + w), max(x1, x + w) + 1);
+        y1 = rng.get_int(y, y + h + 1);
+        y2 = rng.get_int(min(y1, y + h), max(y1, y + h) + 1);
     }
     for i in x1..x2 {
         map[y1 as usize][i as usize] = Box::new(Wall::new(i, y1));
@@ -83,7 +84,7 @@ pub fn bsp_gen(recursion_levels:     i32,
     ) -> Vec<Vec<Box<Tile>>> {
     let mut ret: Vec<Vec<Box<Tile>>> = dummy_gen(80, 50);
     let mut bsp = Bsp::new_with_size(0, 0, 79, 49);
-    bsp.split_recursive(Option::None, recursion_levels, 
+    bsp.split_recursive(Some(Rng::new_with_seed(Algo::MT, 1337)), recursion_levels, 
                                       min_horizontal_size, 
                                       min_vertical_size, 
                                       max_horizontal_ratio, 
