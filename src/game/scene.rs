@@ -4,6 +4,7 @@ use tcod::console::*;
 use super::actors::player::Player;
 use game::map::mapgen;
 use game::map::tile::Tile;
+use std::env;
 
 
 pub struct Scene {
@@ -15,8 +16,18 @@ impl Scene {
     pub fn new() -> Scene {
         return Scene {
             player: Player::new(25, 25),
-            map: mapgen::bsp_gen(5, 5, 5, 0.4, 0.5)
+            map: Scene::gen_map()
         }
+    }
+
+    fn gen_map() -> Vec<Vec<Box<Tile>>> {
+        let a: Vec<String> = env::args().collect();
+        return mapgen::bsp_gen(a[1].parse().unwrap(),
+                               a[2].parse().unwrap(),
+                               a[3].parse().unwrap(),
+                               a[4].parse().unwrap(),
+                               a[5].parse().unwrap(),
+                               a[6].parse().unwrap());
     }
 
     pub fn update(&mut self, key: Option<Key>) {

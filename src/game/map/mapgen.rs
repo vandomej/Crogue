@@ -30,7 +30,7 @@ pub fn dummy_gen(map_width: i32, map_height: i32) -> Vec<Vec<Box<Tile>>> {
     return container;
 }
 
-fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32) {
+fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32, rng: Rng) {
     
         //map.set_default_foreground(tcod::colors::Color::new(rand::random::<u8>(), rand::random::<u8>(), rand::random::<u8>()));
         /*
@@ -46,7 +46,6 @@ fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32) {
         //═║╔╗╚╝
         */
     //let mut rng = thread_rng();
-    let rng = Rng::new_with_seed(Algo::MT, 1337);
     let mut x1 = rng.get_int(x, x + w + 1);
     let mut x2 = rng.get_int(min(x1, x + w), max(x1, x + w) + 1);
     let mut y1 = rng.get_int(y, y + h + 1);
@@ -80,18 +79,21 @@ pub fn bsp_gen(recursion_levels:     i32,
                min_horizontal_size:  i32, 
                min_vertical_size:    i32,
                max_horizontal_ratio: f32,
-               max_vertical_ratio:   f32
+               max_vertical_ratio:   f32,
+               seed:                 u32
     ) -> Vec<Vec<Box<Tile>>> {
     let mut ret: Vec<Vec<Box<Tile>>> = dummy_gen(80, 50);
     let mut bsp = Bsp::new_with_size(0, 0, 79, 49);
-    bsp.split_recursive(Some(Rng::new_with_seed(Algo::MT, 1337)), recursion_levels, 
+    let rng = Rng::new_with_seed(Algo::MT, seed);
+    bsp.split_recursive(Some(rng), recursion_levels, 
                                       min_horizontal_size, 
                                       min_vertical_size, 
                                       max_horizontal_ratio, 
                                       max_vertical_ratio);
+    let rng = Rng::new_with_seed(Algo::MT, seed);
     bsp.traverse(TraverseOrder::LevelOrder, |node| {
         if node.is_leaf() {
-            box_draw(&mut ret, node.x, node.y, node.w, node.h);
+            box_draw(&mut ret, node.x, node.y, node.w, node.h, rng);
         }
         //ret[node.y as usize][node.x as usize] = Box::new(Wall::new(node.x, node.y));
         return true;
