@@ -33,35 +33,37 @@ pub fn dummy_gen(map_width: i32, map_height: i32) -> Vec<Vec<Box<Tile>>> {
 fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32) {
     
     //map.set_default_foreground(tcod::colors::Color::new(rand::random::<u8>(), rand::random::<u8>(), rand::random::<u8>()));
-    for i in (x)..(x + w){
         /*
         root.put_char(i , y + 1, 205 as u8 as char, BackgroundFlag::None);
         root.put_char(i, y + h - 1, 205 as u8 as char, BackgroundFlag::None);
-        */
-        //map.push(Box::new(Wall::new(i, y )));
-        //map.push(Box::new(Wall::new(i, y + h)));
-    }
-    for i in (y)..(y + h) {
-        /*
         root.put_char(x + 1, i, 186 as u8 as char, BackgroundFlag::None);
         root.put_char(x + w - 1, i, 186 as u8 as char, BackgroundFlag::None);
+        root.put_char(x + w - 1, y + h - 1, /*'╝'*/ 188 as u8 as char, BackgroundFlag::None);
+        root.put_char(x + 1, y + 1,/*'╔'*/201 as u8 as char, BackgroundFlag::None);
+        root.put_char(x + w - 1, y + 1, /*'╗'*/187 as u8 as char, BackgroundFlag::None);
+        root.put_char(x + 1, y + h - 1, /*'╚'*/200 as u8 as char, BackgroundFlag::None);
+        root.flush();
+        //═║╔╗╚╝
         */
-        //map.push(Box::new(Wall::new(x, i)));
-        //map.push(Box::new(Wall::new(x + w , i)));
-    }
-    //map.push(Box::new(Wall::new(x + w, y + h)));
-    /*
-    root.put_char(x + w - 1, y + h - 1, /*'╝'*/ 188 as u8 as char, BackgroundFlag::None);
-    root.put_char(x + 1, y + 1,/*'╔'*/201 as u8 as char, BackgroundFlag::None);
-    root.put_char(x + w - 1, y + 1, /*'╗'*/187 as u8 as char, BackgroundFlag::None);
-    root.put_char(x + 1, y + h - 1, /*'╚'*/200 as u8 as char, BackgroundFlag::None);
-    root.flush();*/
-    //═║╔╗╚╝
     let mut rng = thread_rng();
-    let x1 = rng.gen_range(x, x + w + 1);
-    let x2 = rng.gen_range(min(x1, x + w), max(x1, x + w) + 1);
-    let y1 = rng.gen_range(y, y + h + 1);
-    let y2 = rng.gen_range(min(y1, y + h), max(y1, y + h) + 1);
+    let mut x1 = rng.gen_range(x, x + w);
+    let mut x2 = rng.gen_range(min(x1, x + w), max(x1, x + w) + 1);
+    let mut y1 = rng.gen_range(y, y + h);
+    let mut y2 = rng.gen_range(min(y1, y + h), max(y1, y + h) + 1);
+    let min_area = 30;
+    if w * h  <= min_area {
+        return;
+    }
+    let mut counter = 10;
+    while !(x1 > x && x2 < x + w && 
+            y1 > y && y2 < y + h &&
+           (x2 - x1) * (y2 - y1) >= min_area) {
+        if counter == 0 { return; } else { counter -= 1; }
+        x1 = rng.gen_range(x, x + w + 1);
+        x2 = rng.gen_range(min(x1, x + w), max(x1, x + w) + 1);
+        y1 = rng.gen_range(y, y + h + 1);
+        y2 = rng.gen_range(min(y1, y + h), max(y1, y + h) + 1);
+    }
     for i in x1..x2 {
         map[y1 as usize][i as usize] = Box::new(Wall::new(i, y1));
         map[y2 as usize][i as usize] = Box::new(Wall::new(i, y2));
@@ -72,23 +74,6 @@ fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32) {
     }
     map[y2 as usize][x2 as usize] = Box::new(Wall::new(x2, y2));
 }
-/*
-fn gen_empty_map(width: i32, height: i32) -> Vec<Vec<Box<Tile>>> {
-    let mut container: Vec<Vec<Box<Tile>>> = Vec::new();
-
-    for y in 0..height {
-        let mut row: Vec<Box<Tile>> = Vec::new();
-
-        for x in 0..width {
-            let entry = Box::new(Floor::new(x,y));
-
-            row.push(entry);
-        }
-        container.push(row);
-    }
-
-    return container;
-}*/
 
 pub fn bsp_gen(recursion_levels:     i32, 
                min_horizontal_size:  i32, 
