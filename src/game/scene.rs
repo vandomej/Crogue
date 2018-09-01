@@ -18,16 +18,16 @@ pub struct Scene {
 
 impl Scene {
     pub fn new() -> Scene {
-        let (map, tiles) = mapgen::dummy_gen(45, 45);
+        let (map, tiles) = Scene::gen_map();
         return Scene {
-            player: Player::new(25, 25),
-            map: Scene::gen_map(),
+            player: Player::new(26, 25),
             recalc_fov: true,
+            map,
             tiles,
         }
     }
 
-    fn gen_map() -> Vec<Vec<Box<Tile>>> {
+    fn gen_map() -> (Map, Vec<Box<Tile>>) {
         let a: Vec<String> = env::args().collect();
         return mapgen::bsp_gen(a[1].parse().unwrap(),
                                a[2].parse().unwrap(),
