@@ -31,7 +31,7 @@ pub fn dummy_gen(map_width: i32, map_height: i32) -> Vec<Vec<Box<Tile>>> {
 }
 
 fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32, rng: &Rng) {
-    
+        println!("top of the func");
         //map.set_default_foreground(tcod::colors::Color::new(rand::random::<u8>(), rand::random::<u8>(), rand::random::<u8>()));
         /*
         root.put_char(i , y + 1, 205 as u8 as char, BackgroundFlag::None);
@@ -46,23 +46,44 @@ fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32, rng: 
         //═║╔╗╚╝
         */
     //let mut rng = thread_rng();
+    /*
     let mut x1 = rng.get_int(x, x + w + 1);
     let mut x2 = rng.get_int(min(x1, x + w), max(x1, x + w) + 1);
     let mut y1 = rng.get_int(y, y + h + 1);
     let mut y2 = rng.get_int(min(y1, y + h), max(y1, y + h) + 1);
-    let min_area = 30;
+    */
+    let x_half = ((x + w) / 2) + 1;
+    let y_half = ((y + h) / 2) + 1;
+    let mut x1 = rng.get_int(x, x_half - 2);
+    let mut x2 = rng.get_int(x_half , x + w - 1);
+    let mut y1 = rng.get_int(y, y_half - 2);
+    let mut y2 = rng.get_int(y_half, y + h - 1);
+    let min_area = 200;
     if w * h  <= min_area {
+        println!("wrong size");
         return;
     }
-    let mut counter = 10;
+    let mut counter = 1000;
     while !(x1 > x && x2 < x + w && 
             y1 > y && y2 < y + h &&
            (x2 - x1) * (y2 - y1) >= min_area) {
+       
+        println!("{} > {}", x1, x);
+        println!("{} < {}", x2, x + w);
+        println!("{} > {}", y1, y);
+        println!("{} < {}", y2, y + h);
+        if      x1 > x     { x1 -= 1; println!("x1");} else {return;}
+        if x2 < x + w  { x2 += 1; println!("x2");} else {return;}
+        if      y1 > y     { y1 -= 1; println!("y1");} else {return;}
+        if y2 > y + h { y2 += 1; println!("y2");} else {return;}
         if counter == 0 { return; } else { counter -= 1; }
+        println!("no good: {}", counter);
+        /*
         x1 = rng.get_int(x, x + w + 1);
         x2 = rng.get_int(min(x1, x + w), max(x1, x + w) + 1);
         y1 = rng.get_int(y, y + h + 1);
         y2 = rng.get_int(min(y1, y + h), max(y1, y + h) + 1);
+        */
     }
     for i in x1..x2 {
         map[y1 as usize][i as usize] = Box::new(Wall::new(i, y1));
