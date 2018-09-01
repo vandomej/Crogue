@@ -27,7 +27,9 @@ impl Scene {
                                a[3].parse().unwrap(),
                                a[4].parse().unwrap(),
                                a[5].parse().unwrap(),
-                               a[6].parse().unwrap());
+                               a[6].parse().unwrap(),
+                               a[7].parse().unwrap(),
+                               a[8].parse().unwrap());
     }
 
     pub fn update(&mut self, key: Option<Key>) {
