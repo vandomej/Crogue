@@ -2,7 +2,6 @@ extern crate tcod;
 
 mod game;
 
-
 use tcod::console::*;
 use tcod::colors;
 use tcod::input::KeyPressFlags;

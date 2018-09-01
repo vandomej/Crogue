@@ -1,33 +1,31 @@
-extern crate rand;
+use tcod::Map;
 use game::map::tile::*;
 use tcod::bsp::*;
 use tcod::random::*;
 use std::cmp::{max, min};
 
 fn create_tile(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
-    if w == 0 || w == map_width-1 || h == 0 || h == map_height-1 {
+    if w == 0 || w == map_width-1 || h == 0 || h == map_height-1 || (w % 3 == 1 && h % 2 == 1) {
         Box::new(Wall::new(w, h))
     } else {
         Box::new(Floor::new(w, h))
     }
 }
 
-pub fn dummy_gen(map_width: i32, map_height: i32) -> Vec<Vec<Box<Tile>>> {
-    let mut container: Vec<Vec<Box<Tile>>> = Vec::new();
+pub fn dummy_gen(map_width: i32, map_height: i32) -> (Map, Vec<Box<Tile>>) {
+    let mut tiles: Vec<Box<Tile>> = Vec::new();
+    let mut map = Map::new(map_width, map_height);
 
     for h in 0..map_height {
-        let mut row: Vec<Box<Tile>> = Vec::new();
-
         for w in 0..map_width {
-            let entry = create_tile(w, h, map_width, map_height);
+            let tile = create_tile(w, h, map_width, map_height);
 
-            row.push(entry);
+            map.set(w, h, tile.get_see_through(), tile.get_walkable());
+            tiles.push(tile);
         }
-
-        container.push(row);
     }
 
-    return container;
+    return (map, tiles);
 }
 
 fn box_draw(map: &mut Vec<Vec<Box<Tile>>>, x: i32, y: i32, w: i32, h: i32, rng: &Rng, frame: bool, min_area: i32) {

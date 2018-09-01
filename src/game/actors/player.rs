@@ -15,7 +15,17 @@ impl Player {
         return Player {x, y};
     }
 
-    pub fn update(&mut self, key: Option<Key>, map: &Vec<Vec<Box<Tile>>>) {
+    pub fn update(&mut self, key: Option<Key>, tiles: &Vec<Box<Tile>>) -> bool {
+        let mut recalc_fov = false;
+
+        if key.is_some() && key.unwrap().pressed {
+            recalc_fov = self.handle_key(key, tiles);
+        }
+
+        return recalc_fov;
+    }
+
+    fn handle_key(&mut self, key: Option<Key>, tiles: &Vec<Box<Tile>>) -> bool {
         use tcod::input::KeyCode::*;
 
         let mut proposed_x = 0;
@@ -38,13 +48,14 @@ impl Player {
 
         self.x += proposed_x;
         self.y += proposed_y;
+        return true;
     }
 
     pub fn draw(&self, mut window: &Root) {
-        window.put_char(self.x, self.y, '@', BackgroundFlag::None);
+        window.put_char(self.x, self.y, '@', BackgroundFlag::Set);
     }
 
     pub fn clear(&self, mut window: &Root) {
-        window.put_char(self.x, self.y, ' ', BackgroundFlag::None);
+        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
 }
