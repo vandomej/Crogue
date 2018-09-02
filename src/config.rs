@@ -1,6 +1,7 @@
 extern crate serde;
 extern crate toml;
 
+use std::process;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -18,6 +19,15 @@ lazy_static! {
 fn read_config() -> Config {
     let mut file = File::open("config.toml").expect("unable to open");
     let mut text = String::new();
-    file.read_to_string(&mut text);
-    return toml::from_str(&text).unwrap();
+    if file.read_to_string(&mut text).is_err() {
+        eprintln!("Error reading config file");
+        process::exit(1);
+    }
+    let config = toml::from_str(&text);
+    if config.is_err(){
+        eprintln!("Error parsing config file");
+        process::exit(1);
+    } else {
+        return config.unwrap();
+    }
 }
