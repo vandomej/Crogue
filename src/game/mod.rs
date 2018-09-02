@@ -4,7 +4,6 @@ mod scene;
 mod actors;
 mod map;
 
-
 use tcod::input::Key;
 use tcod::console::*;
 
