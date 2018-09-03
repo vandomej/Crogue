@@ -2,17 +2,10 @@ use tcod::Map;
 use game::map::tile::*;
 use tcod::bsp::*;
 use tcod::random::*;
+use config::*;
 
 fn create_tile(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
     if w == 0 || w == map_width-1 || h == 0 || h == map_height-1 || (w % 3 == 1 && h % 2 == 1) {
-        Box::new(Wall::new(w, h))
-    } else {
-        Box::new(Floor::new(w, h))
-    }
-}
-
-fn create_tile2(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
-    if w == 0 || w == map_width-1 || h == 0 || h == map_height-1 {
         Box::new(Wall::new(w, h))
     } else {
         Box::new(Floor::new(w, h))
@@ -41,43 +34,45 @@ pub fn empty_gen(map_width: i32, map_height: i32) -> (Map, Vec<Box<Tile>>) {
 
     for h in 0..map_height {
         for w in 0..map_width {
-            let tile = create_tile2(w, h, map_width, map_height);
-
-            map.set(w, h, tile.get_see_through(), tile.get_walkable());
-            tiles.push(tile);
+            new_floor(&mut map, &mut tiles, w, h);
         }
     }
+    draw_box(&mut map, &mut tiles, 0, 0, map_width - 1, map_height - 1);
 
     return (map, tiles);
 }
 
-fn box_draw(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32, h: i32, rng: &Rng, frame: bool, min_area: i32) {
-    if w * h < min_area ||
-        w     < 6        ||
-            h     < 6 { 
-                return;
-            }
+fn new_floor(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32) {
+    let tile = Box::new(Floor::new(x, y));
+    map.set(x, y, tile.get_see_through(), tile.get_walkable());
+    tiles.push(tile);
+}
+
+fn new_wall(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32) {
+    let tile = Box::new(Wall::new(x, y));
+    let see_through = if CONFIG.game.see_all { true } else { tile.get_see_through() };
+    map.set(x, y, see_through, tile.get_walkable());
+    tiles.push(tile);
+}
+
+fn draw_box(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32, h: i32) {
+    for i in x..w {
+        new_wall(map, tiles, i, y);
+        new_wall(map, tiles, i, h);
+    }
+    for i in y..h {
+        new_wall(map, tiles, x, i);
+        new_wall(map, tiles, w, i);
+    }
+    new_wall(&mut *map, &mut *tiles, w, h);
+}
+
+fn single_room(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32, h: i32, rng: &Rng, frame: bool, min_area: i32) {
+    if w * h < min_area {
+       return;
+    }   
     if frame {
-        for i in x..(x+w) {
-            //map[y as usize][i as usize] = Box::new(Wall::new(i, y));
-            //map[(y + h) as usize][i as usize] = Box::new(Wall::new(i, y + h));
-            let tile = Box::new(Wall::new(i, y));
-            let tile2 = Box::new(Wall::new(i, y + h));
-            map.set(i, y, tile.get_see_through(), tile.get_walkable());
-            map.set(i, y + h, tile2.get_see_through(), tile2.get_walkable());
-            tiles.push(tile);
-            tiles.push(tile2);
-        }
-        for i in y..(y+h) {
-            //map[i as usize][x as usize] = Box::new(Wall::new(x, i));
-            //map[i as usize][(x + w) as usize] = Box::new(Wall::new(x + w, i));
-            let tile = Box::new(Wall::new(x, i));
-            let tile2 = Box::new(Wall::new(x + w, i));
-            map.set(x, i, tile.get_see_through(), tile.get_walkable());
-            map.set(x + w, i, tile2.get_see_through(), tile2.get_walkable());
-            tiles.push(tile);
-            tiles.push(tile2);
-        }
+        draw_box(map, tiles, x, y, x + w, y + h);
     }
     let x_half = x + (w / 2) + 1;
     let y_half = y + (h / 2) + 1;
@@ -85,38 +80,20 @@ fn box_draw(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32, h
     let mut y1 = rng.get_int(y + 2, y_half);
     let mut x2 = rng.get_int(x_half + 1, x + w - 2);
     let mut y2 = rng.get_int(y_half + 1, y + h - 2);
+    let x1_test = | x1 | { x1    - 2 - x  > 0 };
+    let y1_test = | y1 | { y1    - 2 - y  > 0 };
+    let x2_test = | x2 | { x + w - 2 - x2 > 0 };
+    let y2_test = | y2 | { y + h - 2 - y2 > 0 };
     while (x2 - x1) * (y2 - y1) < min_area {
-        if x1 - x > 2         { x1 -= 1; }
-        if x + w - 2 - x2 > 2 { x2 += 1; }
-        if y1 - y > 2         { y1 -= 1; }
-        if y + h - 2 - y2 > 2 { y2 += 1; }
-        if x1 - x <= 2         &&
-            x + w - 2 - x2 <= 2 &&
-                y1 - y <= 2         &&
-                y + h - 2 - y2 <= 2 {
-                    return;
-                }
-    }
-    for i in x1..x2 {
-        if i != x1 + 2 {
-            let tile = Box::new(Wall::new(i, y1));
-            let tile2 = Box::new(Wall::new(i, y2));
-            map.set(i, y1, tile.get_see_through(), tile.get_walkable());
-            map.set(i, y2, tile2.get_see_through(), tile2.get_walkable());
-            tiles.push(tile);
-            tiles.push(tile2);
+        if x1_test(x1) { x1 -= 1; }
+        if x2_test(x2) { x2 += 1; }
+        if y1_test(y1) { y1 -= 1; }
+        if y2_test(y2) { y2 += 1; }
+        if !x1_test(x1) && !x2_test(x2) && !y1_test(y1) && !y2_test(y2) {
+            return;
         }
     }
-    for i in y1..y2 {
-        let tile = Box::new(Wall::new(x1, i));
-        let tile2 = Box::new(Wall::new(x2, i));
-        map.set(x1, i, tile.get_see_through(), tile.get_walkable());
-        map.set(x2, i, tile2.get_see_through(), tile2.get_walkable());
-        tiles.push(tile);
-        tiles.push(tile2);
-    }
-    let tile = Box::new(Wall::new(x2, y2));
-    map.set(x2, y2, tile.get_see_through(), tile.get_walkable());
+    draw_box(map, tiles, x1, y1, x2, y2);
     /*
        '╗' 187
        '╝' 188
@@ -128,27 +105,19 @@ fn box_draw(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32, h
     */
 }
 
-pub fn bsp_gen(recursion_levels:     i32, 
-               min_horizontal_size:  i32, 
-               min_vertical_size:    i32,
-               max_horizontal_ratio: f32,
-               max_vertical_ratio:   f32,
-               seed:                 u32,
-               min_area:             i32,
-               frame:                bool
-              ) -> (Map, Vec<Box<Tile>>) {
-    let mut ret: (Map, Vec<Box<Tile>>) = empty_gen(80, 50);
-    let mut bsp = Bsp::new_with_size(0, 0, 79, 49);
-    let rng = Rng::new_with_seed(Algo::MT, seed);
-    bsp.split_recursive(Some(rng), recursion_levels, 
-                        min_horizontal_size, 
-                        min_vertical_size, 
-                        max_horizontal_ratio, 
-                        max_vertical_ratio);
-    let rng = Rng::new_with_seed(Algo::MT, seed);
+pub fn bsp_gen() -> (Map, Vec<Box<Tile>>) {
+    let mut ret: (Map, Vec<Box<Tile>>) = empty_gen(CONFIG.game.screen_width, CONFIG.game.screen_height);
+    let mut bsp = Bsp::new_with_size(0, 0, CONFIG.game.screen_width - 1, CONFIG.game.screen_height - 1);
+    let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
+    bsp.split_recursive(Some(rng), CONFIG.bsp.recursion_levels, 
+                        CONFIG.bsp.min_horizontal_size, 
+                        CONFIG.bsp.min_vertical_size, 
+                        CONFIG.bsp.max_horizontal_ratio, 
+                        CONFIG.bsp.max_vertical_ratio);
+    let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
     bsp.traverse(TraverseOrder::LevelOrder, |node| {
         if node.is_leaf() {
-            box_draw(&mut ret.0, &mut ret.1, node.x, node.y, node.w, node.h, &rng, frame, min_area);
+            single_room(&mut ret.0, &mut ret.1, node.x, node.y, node.w, node.h, &rng, CONFIG.bsp.frame, CONFIG.bsp.min_area);
         }
         return true;
     });

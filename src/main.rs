@@ -1,27 +1,29 @@
 extern crate tcod;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate lazy_static;
 
 mod game;
+pub mod config;
 
 use tcod::console::*;
 use tcod::colors;
 use tcod::input::KeyPressFlags;
 
 use self::game::Game;
+use self::config::*;
 
-
-const SCREEN_WIDTH: i32 = 80;
-const SCREEN_HEIGHT: i32 = 50;
-const FPS_LIMIT: i32 = 30;
 
 fn main() {
     let mut root = Root::initializer()
         .font("arial10x10.png", FontLayout::Tcod)
         .font_type(FontType::Greyscale)
-        .size(SCREEN_WIDTH, SCREEN_HEIGHT)
+        .size(CONFIG.game.screen_width, CONFIG.game.screen_height)
         .title("crogue")
         .init();
 
-    tcod::system::set_fps(FPS_LIMIT);
+    tcod::system::set_fps(CONFIG.game.fps_limit);
 
     let mut game = Game::new();
 

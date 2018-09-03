@@ -1,0 +1,16 @@
+[game]
+screen_width  = 80
+screen_height = 50
+fps_limit     = 30
+fov           = 20
+see_all       = true
+
+[bsp]
+recursion_levels     = 7
+min_horizontal_size  = 5
+min_vertical_size    = 5
+max_horizontal_ratio = 0.9
+max_vertical_ratio   = 1.0
+seed                 = 667
+min_area             = 25
+frame                = true

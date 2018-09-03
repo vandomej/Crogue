@@ -6,7 +6,7 @@ use tcod::map::FovAlgorithm;
 use super::actors::player::Player;
 use game::map::mapgen;
 use game::map::tile::Tile;
-use std::env;
+use config::*;
 
 
 pub struct Scene {
@@ -18,7 +18,7 @@ pub struct Scene {
 
 impl Scene {
     pub fn new() -> Scene {
-        let (map, tiles) = Scene::gen_map();
+        let (map, tiles) = mapgen::bsp_gen();
         return Scene {
             player: Player::new(26, 25),
             recalc_fov: true,
@@ -27,21 +27,10 @@ impl Scene {
         }
     }
 
-    fn gen_map() -> (Map, Vec<Box<Tile>>) {
-        let a: Vec<String> = env::args().collect();
-        return mapgen::bsp_gen(a[1].parse().unwrap(),
-                               a[2].parse().unwrap(),
-                               a[3].parse().unwrap(),
-                               a[4].parse().unwrap(),
-                               a[5].parse().unwrap(),
-                               a[6].parse().unwrap(),
-                               a[7].parse().unwrap(),
-                               a[8].parse().unwrap());
-    }
-
     pub fn update(&mut self, key: Option<Key>) {
+        let fov = if CONFIG.game.see_all { 300 } else { CONFIG.game.fov };
         if self.recalc_fov {
-            self.map.compute_fov(self.player.x, self.player.y, 10, true, FovAlgorithm::Basic);
+            self.map.compute_fov(self.player.x, self.player.y, fov, true, FovAlgorithm::Basic);
         }
 
         self.recalc_fov = self.player.update(key, &self.tiles);
