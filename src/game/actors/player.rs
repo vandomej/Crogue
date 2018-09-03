@@ -41,10 +41,10 @@ impl Player {
 
         for tile in tiles {
             if tile.get_x() == (self.x + proposed_x) &&
-                tile.get_y() == (self.y + proposed_y) &&
-                tile.get_walkable() == false {
-                    return false;
-                }
+               tile.get_y() == (self.y + proposed_y) &&
+               tile.get_walkable() == false {
+               return false;
+            }
         }
 
         self.x += proposed_x;

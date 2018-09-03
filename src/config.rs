@@ -7,9 +7,29 @@ use std::io::prelude::*;
 
 #[derive(Deserialize)]
 pub struct Config {
+    pub game: GameSettings,
+    pub bsp: BspSettings
+}
+
+#[derive(Deserialize)]
+pub struct GameSettings {
     pub screen_width: i32,
     pub screen_height: i32,
-    pub fps_limit: i32
+    pub fps_limit: i32,
+    pub fov: i32,
+    pub see_all: bool
+}
+
+#[derive(Deserialize)]
+pub struct BspSettings {
+    pub recursion_levels: i32,
+    pub min_horizontal_size: i32,
+    pub min_vertical_size: i32,
+    pub max_horizontal_ratio: f32,
+    pub max_vertical_ratio: f32,
+    pub seed: u32,
+    pub min_area: i32,
+    pub frame: bool
 }
 
 lazy_static! {

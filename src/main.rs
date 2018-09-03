@@ -12,18 +12,18 @@ use tcod::colors;
 use tcod::input::KeyPressFlags;
 
 use self::game::Game;
-use self::config::CONFIG;
+use self::config::*;
 
 
 fn main() {
     let mut root = Root::initializer()
         .font("arial10x10.png", FontLayout::Tcod)
         .font_type(FontType::Greyscale)
-        .size(CONFIG.screen_width, CONFIG.screen_height)
+        .size(CONFIG.game.screen_width, CONFIG.game.screen_height)
         .title("crogue")
         .init();
 
-    tcod::system::set_fps(CONFIG.fps_limit);
+    tcod::system::set_fps(CONFIG.game.fps_limit);
 
     let mut game = Game::new();
 
