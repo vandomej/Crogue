@@ -44,9 +44,9 @@ impl Scene {
             }
         }
 
+        health::Health::draw_health_bar(&self.player, self.player.x, self.player.y, window);
         self.player.draw(window);
         self.player.draw_hud(window);
-        health::Health::draw_health_bar(&self.player, self.player.x, self.player.y, window);
     }
 
     pub fn clear(&self, window: &Root) {

@@ -147,25 +147,8 @@ impl health::Health for Player {
         }
 
         self.legs.0 = value[0];
-        self.arms.1 = value[1];
+        self.legs.1 = value[1];
 
         Ok(())
-    }
-
-    fn calculate_damage(&mut self, amount: i32) {
-        //get random number between 0 and 5
-        //subtract amount from the body part provided by the random number
-        let mut rng = thread_rng();
-        let random: i32 = rng.gen_range(0, 6);
-
-        match random {
-            0 => {self.head -= amount},
-            1 => {self.arms.0 -= amount},
-            2 => {self.arms.1 -= amount},
-            3 => {self.torso -= amount},
-            4 => {self.legs.0 -= amount},
-            5 => {self.legs.1 -= amount},
-            _ => ()
-        }
     }
 }
