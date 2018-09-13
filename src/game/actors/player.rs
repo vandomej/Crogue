@@ -70,25 +70,24 @@ impl Player {
 
     pub fn draw(&self, mut window: &Root) {
         window.put_char(self.x, self.y, '@', BackgroundFlag::Set);
-        self.draw_hud(window);
     }
 
-    fn draw_hud(&self, window: &Root) {
-        let window = self.draw_health(self.head, 0, window);
-        let window = self.draw_health(self.arms.0, 1, window);
-        let window = self.draw_health(self.arms.1, 2, window);
-        let window = self.draw_health(self.torso, 3, window);
-        let window = self.draw_health(self.legs.0, 4, window);
+    pub fn draw_hud(&self, window: &Root) {
+        self.draw_health(self.head, 0, window);
+        self.draw_health(self.arms.0, 1, window);
+        self.draw_health(self.arms.1, 2, window);
+        self.draw_health(self.torso, 3, window);
+        self.draw_health(self.legs.0, 4, window);
         self.draw_health(self.legs.1, 5, window);
     }
 
-    fn draw_health<'a>(&self, health: i32, row: i32, mut window: &'a Root) -> &'a Root {
+    fn draw_health(&self, health: i32, row: i32, mut window: &Root) {
         let line = format!("{: >4} ", health);
         let foreground_color = 
-            if health <= 25 {
+            if health <= 33 {
                 colors::DARK_RED
             }
-            else if health >= 75 {
+            else if health >= 66 {
                 colors::DARK_GREEN
             }
             else {
@@ -99,7 +98,6 @@ impl Player {
         for (i, c) in line.chars().enumerate() {
             window.put_char_ex(i as i32, row, c, foreground_color, background_color)
         }
-        window
     }
 
     pub fn clear(&self, mut window: &Root) {

@@ -7,6 +7,7 @@ use super::actors::player::Player;
 use game::map::mapgen;
 use game::map::tile::Tile;
 use config::*;
+use game::actors::health;
 
 
 pub struct Scene {
@@ -44,6 +45,8 @@ impl Scene {
         }
 
         self.player.draw(window);
+        self.player.draw_hud(window);
+        health::Health::draw_health_bar(&self.player, self.player.x, self.player.y, window);
     }
 
     pub fn clear(&self, window: &Root) {
