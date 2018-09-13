@@ -78,7 +78,11 @@ pub trait Health {
 
         //Displaying a line on the screen (196 = horizontal line)
         for i in 0..line_length {
-            window.put_char_ex(x - 1 + i, y - 1, 196 as char, foreground_color, background_color)
+            let x_position = x - 1 + i;
+            let y_position = y - 1;
+            if x_position >= 0 && y_position >= 0 && x_position < window.width() {
+                window.put_char_ex(x_position, y_position, 196 as char, foreground_color, background_color)
+            }
         }
     }
 }
