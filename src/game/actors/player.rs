@@ -1,6 +1,8 @@
 use tcod::input::Key;
 use tcod::console::*;
+use tcod::colors;
 use std::io;
+use rand::{thread_rng, Rng};
 
 use game::map::tile::Tile;
 use game::actors::health;
@@ -49,6 +51,7 @@ impl Player {
             Some(Key { code: Down, .. }) => proposed_y += 1,
             Some(Key { code: Left, .. }) => proposed_x -= 1,
             Some(Key { code: Right, .. }) => proposed_x += 1,
+            Some(Key { code: Char, printable: 'd', ..}) => health::Health::calculate_damage(self, 15),
             _ => {},
         }
 
@@ -67,6 +70,36 @@ impl Player {
 
     pub fn draw(&self, mut window: &Root) {
         window.put_char(self.x, self.y, '@', BackgroundFlag::Set);
+        self.draw_hud(window);
+    }
+
+    fn draw_hud(&self, window: &Root) {
+        let window = self.draw_health(self.head, 0, window);
+        let window = self.draw_health(self.arms.0, 1, window);
+        let window = self.draw_health(self.arms.1, 2, window);
+        let window = self.draw_health(self.torso, 3, window);
+        let window = self.draw_health(self.legs.0, 4, window);
+        self.draw_health(self.legs.1, 5, window);
+    }
+
+    fn draw_health<'a>(&self, health: i32, row: i32, mut window: &'a Root) -> &'a Root {
+        let line = format!("{: >4} ", health);
+        let foreground_color = 
+            if health <= 25 {
+                colors::DARK_RED
+            }
+            else if health >= 75 {
+                colors::DARK_GREEN
+            }
+            else {
+                colors::WHITE
+            };
+        let background_color = window.get_default_background();
+
+        for (i, c) in line.chars().enumerate() {
+            window.put_char_ex(i as i32, row, c, foreground_color, background_color)
+        }
+        window
     }
 
     pub fn clear(&self, mut window: &Root) {
@@ -107,7 +140,7 @@ impl health::Health for Player {
     }
 
     fn set_torso(&mut self, value: i32) {
-        self.torso = value
+        self.torso = value;
     }
 
     fn set_legs(&mut self, value: Vec<i32>) -> Result<(), io::Error> {
@@ -124,7 +157,8 @@ impl health::Health for Player {
     fn calculate_damage(&mut self, amount: i32) {
         //get random number between 0 and 5
         //subtract amount from the body part provided by the random number
-        let random = 3;
+        let mut rng = thread_rng();
+        let random: i32 = rng.gen_range(0, 6);
 
         match random {
             0 => {self.head -= amount},

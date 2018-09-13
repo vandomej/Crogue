@@ -3,6 +3,7 @@ extern crate tcod;
 extern crate serde_derive;
 #[macro_use]
 extern crate lazy_static;
+extern crate rand;
 
 mod game;
 pub mod config;
