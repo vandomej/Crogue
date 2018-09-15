@@ -2,8 +2,9 @@ use tcod::colors;
 use tcod::console::*;
 use rand::{thread_rng, Rng};
 use std::cmp;
-
 use std::io;
+
+use game::actors::game_object;
 
 pub trait Health {
     fn get_head(&self) -> i32;
@@ -44,45 +45,49 @@ pub trait Health {
             self.set_torso(cmp::max(val - amount, 0));
         }
     }
+}
 
-    fn draw_health_bar(&self, x: i32, y: i32, mut window: &Root) {
-        //Getting all of the health values
-        let mut values: Vec<i32> = Vec::new();
-        values.push(self.get_head());
-        for &i in &self.get_arms() {
-            values.push(i)
+pub fn draw_health_bar<T>(object: &T, mut window: &Root) 
+    where T: Health + game_object::GameObject
+{
+    let (x, y) = object.get_position();
+
+    //Getting all of the health values
+    let mut values: Vec<i32> = Vec::new();
+    values.push(object.get_head());
+    for &i in &object.get_arms() {
+        values.push(i)
+    }
+    values.push(object.get_torso());
+    for &i in &object.get_legs() {
+        values.push(i)
+    }
+
+    //Calculating the average health from all health values
+    let length = values.len() as i32;
+    let sum: i32 = values.into_iter().sum();
+    let total_health = (sum as f64 / length as f64).round() as i32;
+
+    //Setup before displaying health
+    let foreground_color = 
+        if total_health <= 33 {
+            colors::DARK_RED
         }
-        values.push(self.get_torso());
-        for &i in &self.get_legs() {
-            values.push(i)
+        else if total_health >= 66 {
+            colors::DARK_GREEN
         }
+        else {
+            colors::DARK_YELLOW
+        };
+    let background_color = window.get_default_background();
+    let line_length = ((total_health as f64) / 33.3333333333333333333).ceil() as i32;
 
-        //Calculating the average health from all health values
-        let length = values.len() as i32;
-        let sum: i32 = values.into_iter().sum();
-        let total_health = (sum as f64 / length as f64).round() as i32;
-
-        //Setup before displaying health
-        let foreground_color = 
-            if total_health <= 33 {
-                colors::DARK_RED
-            }
-            else if total_health >= 66 {
-                colors::DARK_GREEN
-            }
-            else {
-                colors::DARK_YELLOW
-            };
-        let background_color = window.get_default_background();
-        let line_length = ((total_health as f64) / 33.3333333333333333333).ceil() as i32;
-
-        //Displaying a line on the screen (196 = horizontal line)
-        for i in 0..line_length {
-            let x_position = x - 1 + i;
-            let y_position = y - 1;
-            if x_position >= 0 && y_position >= 0 && x_position < window.width() {
-                window.put_char_ex(x_position, y_position, 196 as char, foreground_color, background_color)
-            }
+    //Displaying a line on the screen (196 = horizontal line)
+    for i in 0..line_length {
+        let x_position = x - 1 + i;
+        let y_position = y - 1;
+        if x_position >= 0 && y_position >= 0 && x_position < window.width() {
+            window.put_char_ex(x_position, y_position, 196 as char, foreground_color, background_color)
         }
     }
 }

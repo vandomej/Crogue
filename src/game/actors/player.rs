@@ -6,7 +6,7 @@ use rand::{thread_rng, Rng};
 
 use game::map::tile::Tile;
 use game::actors::health;
-
+use game::actors::game_object;
 
 #[derive(Debug)]
 pub struct Player {
@@ -150,5 +150,15 @@ impl health::Health for Player {
         self.legs.1 = value[1];
 
         Ok(())
+    }
+}
+
+impl game_object::GameObject for Player {
+    fn get_position(&self) -> (i32, i32) {
+        (self.x, self.y)
+    }
+
+    fn move_object(&self, position: (i32, i32)) {
+
     }
 }

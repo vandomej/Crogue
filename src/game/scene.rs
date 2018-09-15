@@ -44,7 +44,7 @@ impl Scene {
             }
         }
 
-        health::Health::draw_health_bar(&self.player, self.player.x, self.player.y, window);
+        health::draw_health_bar(&self.player, window);
         self.player.draw(window);
         self.player.draw_hud(window);
     }
