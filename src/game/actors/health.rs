@@ -8,9 +8,9 @@ use game::actors::game_object;
 
 // Weights for determining how to display the health bar
 // More vital body parts should have higher weights
-const HEAD_WEIGHT: i32 = 3;
+const HEAD_WEIGHT: i32 = 4;
 const ARM_WEIGHT: i32 = 1;
-const TORSO_WEIGHT: i32 = 3;
+const TORSO_WEIGHT: i32 = 4;
 const LEG_WEIGHT: i32 = 1;
 
 pub trait Health {

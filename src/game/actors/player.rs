@@ -8,7 +8,7 @@ use game::map::tile::Tile;
 use game::actors::health;
 use game::actors::game_object;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Player {
     pub x: i32,
     pub y: i32,
