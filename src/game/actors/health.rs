@@ -6,6 +6,13 @@ use std::io;
 
 use game::actors::game_object;
 
+// Weights for determining how to display the health bar
+// More vital body parts should have higher weights
+const HEAD_WEIGHT: i32 = 3;
+const ARM_WEIGHT: i32 = 1;
+const TORSO_WEIGHT: i32 = 3;
+const LEG_WEIGHT: i32 = 1;
+
 pub trait Health {
     fn get_head(&self) -> i32;
     fn get_arms(&self) -> Vec<i32>;
@@ -16,6 +23,8 @@ pub trait Health {
     fn set_arms(&mut self, value: Vec<i32>) -> Result<(), io::Error>;
     fn set_torso(&mut self, value: i32);
     fn set_legs(&mut self, value: Vec<i32>) -> Result<(), io::Error>;
+
+    fn is_dead(&self) -> bool;
 
     fn calculate_damage(&mut self, amount: i32) {
         let number_of_arms: i32 = self.get_arms().len() as i32;
@@ -54,19 +63,29 @@ pub fn draw_health_bar<T>(object: &T, mut window: &Root)
 
     //Getting all of the health values
     let mut values: Vec<i32> = Vec::new();
-    values.push(object.get_head());
+    let mut max_health = 0;
+
+    values.push(object.get_head() * HEAD_WEIGHT);
+    max_health += 100 * HEAD_WEIGHT;
+
     for &i in &object.get_arms() {
-        values.push(i)
+        values.push(i * ARM_WEIGHT);
+        max_health += 100 * ARM_WEIGHT;
     }
-    values.push(object.get_torso());
+    
+    values.push(object.get_torso() * TORSO_WEIGHT);
+    max_health += 100 * TORSO_WEIGHT;
+    
     for &i in &object.get_legs() {
-        values.push(i)
+        values.push(i * LEG_WEIGHT);
+        max_health += 100 * LEG_WEIGHT;
     }
 
     //Calculating the average health from all health values
     let length = values.len() as i32;
     let sum: i32 = values.into_iter().sum();
     let total_health = (sum as f64 / length as f64).round() as i32;
+    max_health = (max_health as f64 / length as f64).round() as i32;
 
     //Setup before displaying health
     let foreground_color = 
@@ -80,7 +99,8 @@ pub fn draw_health_bar<T>(object: &T, mut window: &Root)
             colors::DARK_YELLOW
         };
     let background_color = window.get_default_background();
-    let line_length = ((total_health as f64) / 33.3333333333333333333).ceil() as i32;
+
+    let line_length = (if object.is_dead() { 0 } else { ((total_health as f64) / (max_health as f64 / 3.0)).ceil() as i32 });
 
     //Displaying a line on the screen (196 = horizontal line)
     for i in 0..line_length {

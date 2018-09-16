@@ -73,16 +73,16 @@ impl Player {
     }
 
     pub fn draw_hud(&self, window: &Root) {
-        self.draw_health(self.head, 0, window);
-        self.draw_health(self.arms.0, 1, window);
-        self.draw_health(self.arms.1, 2, window);
-        self.draw_health(self.torso, 3, window);
-        self.draw_health(self.legs.0, 4, window);
-        self.draw_health(self.legs.1, 5, window);
+        self.draw_health(self.head, "H ", 0, window);
+        self.draw_health(self.arms.0, "AL", 1, window);
+        self.draw_health(self.arms.1, "AR", 2, window);
+        self.draw_health(self.torso, "T ", 3, window);
+        self.draw_health(self.legs.0, "LL", 4, window);
+        self.draw_health(self.legs.1, "LR", 5, window);
     }
 
-    fn draw_health(&self, health: i32, row: i32, mut window: &Root) {
-        let line = format!("{: >4} ", health);
+    fn draw_health(&self, health: i32, label: &str, row: i32, mut window: &Root) {
+        let line = format!("{:2} {: >4} ", label, health);
         let foreground_color = 
             if health <= 33 {
                 colors::DARK_RED
@@ -150,6 +150,10 @@ impl health::Health for Player {
         self.legs.1 = value[1];
 
         Ok(())
+    }
+
+    fn is_dead(&self) -> bool {
+        return !(self.head > 0 && self.torso > 0);
     }
 }
 
