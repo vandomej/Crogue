@@ -3,8 +3,8 @@ use tcod::console::*;
 
 use game::map::tile::Tile;
 use game::actors::player::Player;
-use game::actors::health;
-use game::actors::game_object;
+use game::actors::health::Health;
+use game::actors::game_object::GameObject;
 
 #[derive(Debug)]
 pub struct Enemy {
@@ -14,11 +14,12 @@ pub struct Enemy {
     arms: (i32, i32),
     torso: i32,
     legs: (i32, i32),
-    player: Player
+    attack_cooldown: i32,
+    attack_time: i32 // The number of frames in between each attack
 }
 
 impl Enemy {
-    pub fn new(x: i32, y: i32, player: Player) -> Enemy {
+    pub fn new(x: i32, y: i32, attack_cooldown: i32) -> Enemy {
         return Enemy {
             x, 
             y,
@@ -26,12 +27,20 @@ impl Enemy {
             arms: (100, 100),
             torso: 100,
             legs: (100, 100),
-            player
+            attack_cooldown,
+            attack_time: 0
         };
     }
 
-    pub fn update(&mut self, tiles: &Vec<Box<Tile>>, player: &Player) {
-        self.player = player.clone(); // Might be better to store a reference to the player rather than replacing player data on update but lifetimes make it too much trouble
+    pub fn update(&mut self, tiles: &Vec<Box<Tile>>, player: &mut Player) {
+        // When attack_time reaches attack_cooldown, the enemy can attack
+        if self.attack_time < self.attack_cooldown {
+            self.attack_time += 1;
+        }
+        else if player.is_adjacent_to(self) {
+            player.calculate_damage(15);
+            self.attack_time = 0;
+        }
     }
 
     pub fn draw(&self, mut window: &Root) {
@@ -43,7 +52,7 @@ impl Enemy {
     }
 }
 
-impl health::Health for Enemy {
+impl Health for Enemy {
     fn get_head(&self) -> i32 {
         self.head
     }
@@ -95,7 +104,7 @@ impl health::Health for Enemy {
     }
 }
 
-impl game_object::GameObject for Enemy {
+impl GameObject for Enemy {
     fn get_position(&self) -> (i32, i32) {
         (self.x, self.y)
     }

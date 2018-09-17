@@ -24,7 +24,7 @@ impl Scene {
         let (map, tiles) = mapgen::bsp_gen();
         return Scene {
             player: Player::new(26, 25),
-            enemies: vec![Enemy::new(30, 25, Player::new(26, 25))],
+            enemies: vec![Enemy::new(30, 25, 10)],
             recalc_fov: true,
             map,
             tiles,
@@ -40,7 +40,7 @@ impl Scene {
         self.recalc_fov = self.player.update(key, &self.tiles);
 
         for enemy in &mut self.enemies {
-            enemy.update(&self.tiles, &self.player);
+            enemy.update(&self.tiles, &mut self.player);
         }
     }
 
@@ -54,6 +54,11 @@ impl Scene {
         health::draw_health_bar(&self.player, window);
         self.player.draw(window);
         self.player.draw_hud(window);
+        
+        for enemy in &self.enemies {
+            health::draw_health_bar(enemy, window);
+            enemy.draw(window);
+        }
     }
 
     pub fn clear(&self, window: &Root) {
