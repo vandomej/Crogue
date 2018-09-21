@@ -86,25 +86,25 @@ pub fn draw_health_bar<T>(object: &T, mut window: &Root)
     let sum: i32 = values.into_iter().sum();
     let total_health = (sum as f64 / length as f64).round() as i32;
     max_health = (max_health as f64 / length as f64).round() as i32;
+    let background_color = window.get_default_background();
+
+    let line_length = if object.is_dead() { 0 } else { ((total_health as f64) / (max_health as f64 / 3.0)).ceil() as i32 };
 
     //Setup before displaying health
     let foreground_color = 
-        if total_health <= 33 {
+        if line_length <= 1 {
             colors::DARK_RED
         }
-        else if total_health >= 66 {
+        else if line_length >= 3 {
             colors::DARK_GREEN
         }
         else {
             colors::DARK_YELLOW
         };
-    let background_color = window.get_default_background();
-
-    let line_length = if object.is_dead() { 0 } else { ((total_health as f64) / (max_health as f64 / 3.0)).ceil() as i32 };
 
     //Displaying a line on the screen (196 = horizontal line)
     for i in 0..line_length {
-        let x_position = x - 1 + i;
+        let x_position = x - ((line_length as f64 / 2.0).ceil() as i32) + 1 + i;
         let y_position = y - 1;
         if x_position >= 0 && y_position >= 0 && x_position < window.width() {
             window.put_char_ex(x_position, y_position, 196 as char, foreground_color, background_color)
