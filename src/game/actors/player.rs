@@ -2,7 +2,6 @@ use tcod::input::Key;
 use tcod::console::*;
 use tcod::colors;
 use std::io;
-use rand::{thread_rng, Rng};
 
 use game::map::tile::Tile;
 use game::actors::health;
@@ -51,21 +50,11 @@ impl Player {
             Some(Key { code: Down, .. }) => proposed_y += 1,
             Some(Key { code: Left, .. }) => proposed_x -= 1,
             Some(Key { code: Right, .. }) => proposed_x += 1,
-            Some(Key { code: Char, printable: 'd', ..}) => health::Health::calculate_damage(self, 15),
             _ => {},
         }
 
-        for tile in tiles {
-            if tile.get_x() == (self.x + proposed_x) &&
-               tile.get_y() == (self.y + proposed_y) &&
-               tile.get_walkable() == false {
-               return false;
-            }
-        }
-
-        self.x += proposed_x;
-        self.y += proposed_y;
-        return true;
+        let proposed_position = (self.x + proposed_x, self.y + proposed_y);
+        game_object::GameObject::move_object(self, tiles, proposed_position).unwrap()
     }
 
     pub fn draw(&self, mut window: &Root) {
@@ -162,7 +151,8 @@ impl game_object::GameObject for Player {
         (self.x, self.y)
     }
 
-    fn move_object(&self, position: (i32, i32)) {
-
+    fn set_position(&mut self, position: (i32, i32)) {
+        self.x = position.0;
+        self.y = position.1;
     }
 }

@@ -37,13 +37,13 @@ pub trait Health {
             let mut arms = self.get_arms();
             let val = arms.remove(random as usize);
             arms.insert(random as usize, cmp::max(val - amount, 0));
-            self.set_arms(arms);
+            self.set_arms(arms).unwrap();
         }
         else if random >= number_of_arms && random < number_of_arms + number_of_legs { //legs
             let mut legs = self.get_legs();
             let val = legs.remove((random - number_of_arms) as usize);
             legs.insert((random - number_of_arms) as usize, cmp::max(val - amount, 0));
-            self.set_legs(legs);
+            self.set_legs(legs).unwrap();
         }
         else if random == number_of_arms + number_of_legs { //head
             let val = self.get_head();
@@ -100,7 +100,7 @@ pub fn draw_health_bar<T>(object: &T, mut window: &Root)
         };
     let background_color = window.get_default_background();
 
-    let line_length = (if object.is_dead() { 0 } else { ((total_health as f64) / (max_health as f64 / 3.0)).ceil() as i32 });
+    let line_length = if object.is_dead() { 0 } else { ((total_health as f64) / (max_health as f64 / 3.0)).ceil() as i32 };
 
     //Displaying a line on the screen (196 = horizontal line)
     for i in 0..line_length {
