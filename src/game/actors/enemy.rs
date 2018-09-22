@@ -73,7 +73,7 @@ impl Health for Enemy {
         self.head = value;
     }
 
-    fn set_arms(&mut self, value: Vec<i32>) -> Result<(), io::Error>{
+    fn set_arms(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error>{
         if value.len() < 2 {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Error setting arm health for enemy. This enemy has two arms."));
         }
@@ -81,14 +81,14 @@ impl Health for Enemy {
         self.arms.0 = value[0];
         self.arms.1 = value[1];
 
-        Ok(())
+        Ok(value)
     }
 
     fn set_torso(&mut self, value: i32) {
         self.torso = value;
     }
 
-    fn set_legs(&mut self, value: Vec<i32>) -> Result<(), io::Error> {
+    fn set_legs(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error> {
         if value.len() < 2 {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Error setting leg health for enemy. This enemy has two legs."));
         }
@@ -96,7 +96,7 @@ impl Health for Enemy {
         self.legs.0 = value[0];
         self.legs.1 = value[1];
 
-        Ok(())
+        Ok(value)
     }
 
     fn is_dead(&self) -> bool {

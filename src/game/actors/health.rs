@@ -20,9 +20,9 @@ pub trait Health {
     fn get_legs(&self) -> Vec<i32>;
 
     fn set_head(&mut self, value: i32);
-    fn set_arms(&mut self, value: Vec<i32>) -> Result<(), io::Error>;
+    fn set_arms(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error>;
     fn set_torso(&mut self, value: i32);
-    fn set_legs(&mut self, value: Vec<i32>) -> Result<(), io::Error>;
+    fn set_legs(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error>;
 
     fn is_dead(&self) -> bool;
 

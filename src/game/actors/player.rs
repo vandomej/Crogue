@@ -115,7 +115,7 @@ impl health::Health for Player {
         self.head = value;
     }
 
-    fn set_arms(&mut self, value: Vec<i32>) -> Result<(), io::Error>{
+    fn set_arms(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error>{
         if value.len() < 2 {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Error setting arm health for player, players require at least 2 arm health values to be provided."));
         }
@@ -123,14 +123,14 @@ impl health::Health for Player {
         self.arms.0 = value[0];
         self.arms.1 = value[1];
 
-        Ok(())
+        Ok(value)
     }
 
     fn set_torso(&mut self, value: i32) {
         self.torso = value;
     }
 
-    fn set_legs(&mut self, value: Vec<i32>) -> Result<(), io::Error> {
+    fn set_legs(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error> {
         if value.len() < 2 {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Error setting leg health for player, players require at least 2 leg health values to be provided."));
         }
@@ -138,7 +138,7 @@ impl health::Health for Player {
         self.legs.0 = value[0];
         self.legs.1 = value[1];
 
-        Ok(())
+        Ok(value)
     }
 
     fn is_dead(&self) -> bool {
