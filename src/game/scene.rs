@@ -4,13 +4,16 @@ use tcod::map::Map;
 use tcod::map::FovAlgorithm;
 
 use super::actors::player::Player;
+use super::actors::enemy::Enemy;
 use game::map::mapgen;
 use game::map::tile::Tile;
 use config::*;
+use game::actors::health;
 
 
 pub struct Scene {
     player: Player,
+    enemies: Vec<Enemy>,
     map: Map,
     tiles: Vec<Box<Tile>>,
     recalc_fov: bool
@@ -20,7 +23,8 @@ impl Scene {
     pub fn new() -> Scene {
         let (map, tiles) = mapgen::bsp_gen();
         return Scene {
-            player: Player::new(26, 25),
+            player: Player::new(27, 25),
+            enemies: vec![Enemy::new(32, 25, 10)],
             recalc_fov: true,
             map,
             tiles,
@@ -34,6 +38,10 @@ impl Scene {
         }
 
         self.recalc_fov = self.player.update(key, &self.tiles);
+
+        for enemy in &mut self.enemies {
+            enemy.update(&self.tiles, &mut self.player);
+        }
     }
 
     pub fn draw(&self, window: &Root) {
@@ -43,7 +51,16 @@ impl Scene {
             }
         }
 
+        for enemy in &self.enemies {
+            health::draw_health_bar(enemy, window);
+            enemy.draw(window);
+        }
+        health::draw_health_bar(&self.player, window);
+        
         self.player.draw(window);
+        self.player.draw_hud(window);
+        
+        
     }
 
     pub fn clear(&self, window: &Root) {

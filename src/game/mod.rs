@@ -1,5 +1,3 @@
-extern crate tcod;
-
 mod scene;
 mod actors;
 mod map;
