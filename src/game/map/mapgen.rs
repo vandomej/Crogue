@@ -2,7 +2,23 @@ use tcod::Map;
 use game::map::tile::*;
 use tcod::bsp::*;
 use tcod::random::*;
+use tcod::line::Line;
 use config::*;
+
+/*
+struct Map {
+    rooms: Vec<room>,
+    bsp_frames: Vec<room>,
+}
+*/
+
+pub struct Room {
+    x: i32,
+    y: i32,
+    w: i32,
+    h: i32,
+    walls: Vec<Line>
+}
 
 fn create_tile(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
     if w == 0 || w == map_width-1 || h == 0 || h == map_height-1 || (w % 3 == 1 && h % 2 == 1) {
@@ -105,10 +121,75 @@ fn single_room(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32
     */
 }
 
+fn gen_room(room: &mut Room, rng: &Rng, frame: bool, min_area: i32) {
+    let x = room.x;
+    let y = room.y;
+    let w = room.w;
+    let h = room.h;
+    if room.w * room.h < min_area {
+       return;
+    }   
+    if frame {
+        //draw_box(map, tiles, x, y, x + w, y + h);
+    }
+    let x_half = x + (w / 2) + 1;
+    let y_half = y + (h / 2) + 1;
+    let mut x1 = rng.get_int(x + 2, x_half);
+    let mut y1 = rng.get_int(y + 2, y_half);
+    let mut x2 = rng.get_int(x_half + 1, x + w - 2);
+    let mut y2 = rng.get_int(y_half + 1, y + h - 2);
+    let x1_test = | x1 | { x1    - 2 - x  > 0 };
+    let y1_test = | y1 | { y1    - 2 - y  > 0 };
+    let x2_test = | x2 | { x + w - 2 - x2 > 0 };
+    let y2_test = | y2 | { y + h - 2 - y2 > 0 };
+    while (x2 - x1) * (y2 - y1) < min_area {
+        if x1_test(x1) { x1 -= 1; }
+        if x2_test(x2) { x2 += 1; }
+        if y1_test(y1) { y1 -= 1; }
+        if y2_test(y2) { y2 += 1; }
+        if !x1_test(x1) && !x2_test(x2) && !y1_test(y1) && !y2_test(y2) {
+            return;
+        }
+    }
+    room.walls.push(Line::new((x1,y1),(x1,y2)));
+    room.walls.push(Line::new((x1,y1),(x2,y1)));
+    room.walls.push(Line::new((x1,y2),(x2,y2)));
+    room.walls.push(Line::new((x2,y1),(x2,y2)));
+    //draw_box(map, tiles, x1, y1, x2, y2);
+    /*
+       '╗' 187
+       '╝' 188
+       '╔' 201
+       '╚' 200
+       '║' 205
+       '═' 186
+    //═║╔╗╚╝
+    */
+}
+
+pub fn proc_rooms(rooms: &mut Vec<Room>)-> (Map, Vec<Box<Tile>>) {
+    let mut ret: (Map, Vec<Box<Tile>>) = empty_gen(CONFIG.game.screen_width, CONFIG.game.screen_height);
+    for room in rooms.iter() {
+        for wall in &mut room.walls.iter() {
+            let mut v = Some((0,0));
+            while v != None {
+                v = wall.step();
+                let t = v.unwrap();
+                let tile = Box::new(Wall::new(t.0, t.1));
+                let see_through = if CONFIG.game.see_all { true } else { tile.get_see_through() };
+                ret.0.set(t.0, t.1, see_through, tile.get_walkable());
+                ret.1.push(tile);
+            }
+        }
+    }
+    ret
+}
+
 pub fn bsp_gen() -> (Map, Vec<Box<Tile>>) {
     let mut ret: (Map, Vec<Box<Tile>>) = empty_gen(CONFIG.game.screen_width, CONFIG.game.screen_height);
     let mut bsp = Bsp::new_with_size(0, 0, CONFIG.game.screen_width - 1, CONFIG.game.screen_height - 1);
     let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
+    let mut b: Vec<Room> = Vec::new();
     bsp.split_recursive(Some(rng), CONFIG.bsp.recursion_levels, 
                         CONFIG.bsp.min_horizontal_size, 
                         CONFIG.bsp.min_vertical_size, 
@@ -117,7 +198,16 @@ pub fn bsp_gen() -> (Map, Vec<Box<Tile>>) {
     let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
     bsp.traverse(TraverseOrder::LevelOrder, |node| {
         if node.is_leaf() {
-            single_room(&mut ret.0, &mut ret.1, node.x, node.y, node.w, node.h, &rng, CONFIG.bsp.frame, CONFIG.bsp.min_area);
+            //single_room(&mut ret.0, &mut ret.1, node.x, node.y, node.w, node.h, &rng, CONFIG.bsp.frame, CONFIG.bsp.min_area);
+            b.push(
+                Room {
+                    x: node.x,
+                    y: node.y,
+                    w: node.w,
+                    h: node.h,
+                    walls: Vec::new(),
+                }
+            );
         }
         return true;
     });
