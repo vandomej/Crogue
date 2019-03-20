@@ -113,10 +113,12 @@ fn gen_room(room: &Room, rng: &Rng, frame: bool, min_area: i32) -> Option<Room> 
         }
     }
 
+    /*
     room.walls.push(Line::new((x1,y1),(x1,y2)));
     room.walls.push(Line::new((x1,y1),(x2,y1)));
     room.walls.push(Line::new((x1,y2),(x2,y2)));
     room.walls.push(Line::new((x2,y1),(x2,y2)));
+    */
 
     /*
        '╗' 187
@@ -206,5 +208,5 @@ pub fn bsp_gen() -> (Map, Vec<Box<Tile>>) {
     if CONFIG.bsp.frame { 
         map = add_to_map(frames, map.0, map.1);
     }
-    return result;
+    return map;
 }
