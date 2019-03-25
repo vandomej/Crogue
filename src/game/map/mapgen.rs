@@ -195,7 +195,7 @@ fn generate_connecting_hallway(r1: &Room, r2: &Room) -> (Room, Room) {
     let hallway_horizontal = Room {
         x: hallway_horiz_xy.0,
         y: hallway_horiz_xy.1,
-        w: center_delta.0.abs(),
+        w: center_delta.0.abs() + 1,
         h: 2,
         walls: Vec::new()
     };
@@ -204,7 +204,7 @@ fn generate_connecting_hallway(r1: &Room, r2: &Room) -> (Room, Room) {
         x: hallway_vert_xy.0,
         y: hallway_vert_xy.1,
         w: 2,
-        h: center_delta.1.abs(),
+        h: center_delta.1.abs() + 1,
         walls: Vec::new()
     };
 
