@@ -141,15 +141,34 @@ pub fn get_walls(x: i32,y: i32,w: i32,h: i32) -> Vec<((i32, i32), (i32, i32))> {
     ]
 }
 
+fn within_another_room(wall: (i32, i32), rooms: &Vec<Room>) -> bool {
+    for room in rooms {
+        if wall.0 > room.x && wall.0 < (room.x + room.w) &&
+           wall.1 > room.y && wall.1 < (room.y + room.h) {
+            return true;
+        }
+    }
+
+    false
+}
+
 pub fn add_to_map(rooms: Vec<Room>, m: Map, t: Vec<Box<Tile>>) -> (Map, Vec<Box<Tile>>){
     let mut map = m;
     let mut tiles = t;
-    for room in rooms {
-        new_wall(&mut map, &mut tiles, room.x, room.y);
+
+    for room in &rooms {
+
+        if !within_another_room((room.x, room.y), &rooms) {
+            new_wall(&mut map, &mut tiles, room.x, room.y);
+        }
+
         for wall in get_walls(room.x, room.y, room.w, room.h) {
             let mut line = Line::new(wall.0, wall.1);
+
             while let Some(w) = line.step() {
-                new_wall(&mut map, &mut tiles, w.0, w.1)
+                if !within_another_room((w.0, w.1), &rooms) {
+                    new_wall(&mut map, &mut tiles, w.0, w.1)
+                }
             }
         }
     }
