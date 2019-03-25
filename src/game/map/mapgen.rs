@@ -91,7 +91,7 @@ fn gen_room(room: &Room, rng: &Rng, frame: bool, min_area: i32) -> Option<Room> 
 
     if room.w * room.h < min_area {
        return None;
-    }   
+    }
 
     let x_half = x + (w / 2) + 1;
     let y_half = y + (h / 2) + 1;
@@ -156,14 +156,70 @@ pub fn add_to_map(rooms: Vec<Room>, m: Map, t: Vec<Box<Tile>>) -> (Map, Vec<Box<
     return (map, tiles)
 }
 
+fn generate_connecting_hallway(r1: &Room, r2: &Room) -> (Room, Room) {
+    let center_r1: (i32, i32) = (r1.x + r1.w/2, r1.y + r1.h/2);
+    let center_r2: (i32, i32) = (r2.x + r2.w/2, r2.y + r2.h/2);
+    let center_delta: (i32, i32) = (center_r2.0 - center_r1.0, center_r2.1 - center_r1.1);
+
+    let hallway_horiz_xy = if center_delta.0 >= 0 {
+        (center_r1.0, center_r2.1)
+    } else {
+        (center_r2.0, center_r2.1)
+    };
+
+    let hallway_vert_xy = if center_delta.1 >= 0 {
+        (center_r1.0, center_r1.1)
+    } else {
+        (center_r1.0, center_r2.1)
+    };
+
+    let hallway_horizontal = Room {
+        x: hallway_horiz_xy.0,
+        y: hallway_horiz_xy.1,
+        w: center_delta.0.abs(),
+        h: 2,
+        walls: Vec::new()
+    };
+
+    let hallway_vertical = Room {
+        x: hallway_vert_xy.0,
+        y: hallway_vert_xy.1,
+        w: 2,
+        h: center_delta.1.abs(),
+        walls: Vec::new()
+    };
+
+    return (hallway_horizontal, hallway_vertical)
+}
+
 pub fn generate_rooms(frames: &Vec<Room>) -> Vec<Room> {
     let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
     let mut rooms: Vec<Room> = Vec::new();
+    let mut hallways: Vec<Room> = Vec::new();
+
+    let mut prev_room = 0;
+    let mut curr_room = 1;
+    let mut rooms_len = 0;
+
     for frame in frames {
         if let Some(r) = gen_room(frame, &rng, CONFIG.bsp.frame, CONFIG.bsp.min_area) {
+
             rooms.push(r);
+            rooms_len += 1;
+
+            if rooms_len >= 2 {
+                let hallway = generate_connecting_hallway(&rooms[prev_room], &rooms[curr_room]);
+
+                hallways.push(hallway.0);
+                hallways.push(hallway.1);
+
+                prev_room += 1;
+                curr_room += 1;
+            }
         }
     };
+
+    rooms.append(&mut hallways);
     return rooms;
 }
 
@@ -200,12 +256,10 @@ pub fn bsp_gen() -> (Map, Vec<Box<Tile>>) {
 
     let frames = generate_frames();
     let rooms  = generate_rooms(&frames);
-    // add hallways
-    // add other stuff I guess
 
     map = add_to_map(rooms, map.0, map.1);
 
-    if CONFIG.bsp.frame { 
+    if CONFIG.bsp.frame {
         map = add_to_map(frames, map.0, map.1);
     }
     return map;
