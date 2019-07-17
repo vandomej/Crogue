@@ -4,3 +4,9 @@ version = "0.1.0"
 authors = ["Sebastian Benjamin <sebastiancbenjamin@gmail.com>"]
 
 [dependencies]
+tcod="0.12"
+rand="0.5.5"
+toml = "0.4.2"
+serde = "1.0.76"
+serde_derive = "1.0.76"
+lazy_static = "1.1.0"
