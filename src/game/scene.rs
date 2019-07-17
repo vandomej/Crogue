@@ -56,11 +56,9 @@ impl Scene {
             enemy.draw(window);
         }
         health::draw_health_bar(&self.player, window);
-        
+
         self.player.draw(window);
         self.player.draw_hud(window);
-        
-        
     }
 
     pub fn clear(&self, window: &Root) {

@@ -56,7 +56,7 @@ pub trait Health {
     }
 }
 
-pub fn draw_health_bar<T>(object: &T, mut window: &Root) 
+pub fn draw_health_bar<T>(object: &T, mut window: &Root)
     where T: Health + game_object::GameObject
 {
     let (x, y) = object.get_position();
@@ -72,10 +72,10 @@ pub fn draw_health_bar<T>(object: &T, mut window: &Root)
         values.push(i * ARM_WEIGHT);
         max_health += 100 * ARM_WEIGHT;
     }
-    
+
     values.push(object.get_torso() * TORSO_WEIGHT);
     max_health += 100 * TORSO_WEIGHT;
-    
+
     for &i in &object.get_legs() {
         values.push(i * LEG_WEIGHT);
         max_health += 100 * LEG_WEIGHT;
@@ -91,7 +91,7 @@ pub fn draw_health_bar<T>(object: &T, mut window: &Root)
     let line_length = if object.is_dead() { 0 } else { ((total_health as f64) / (max_health as f64 / 3.0)).ceil() as i32 };
 
     //Setup before displaying health
-    let foreground_color = 
+    let foreground_color =
         if line_length <= 1 {
             colors::DARK_RED
         }
