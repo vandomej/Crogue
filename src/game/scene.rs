@@ -9,6 +9,7 @@ use game::map::mapgen;
 use game::map::tile::Tile;
 use config::*;
 use game::actors::health;
+use game::actors::game_object::GameObject;
 
 
 pub struct Scene {
@@ -55,8 +56,8 @@ impl Scene {
             health::draw_health_bar(enemy, window);
             enemy.draw(window);
         }
+        
         health::draw_health_bar(&self.player, window);
-
         self.player.draw(window);
         self.player.draw_hud(window);
     }

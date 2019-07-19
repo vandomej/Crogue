@@ -42,10 +42,6 @@ impl Enemy {
             self.attack_time = 0;
         }
     }
-
-    pub fn draw(&self, mut window: &Root) {
-        window.put_char(self.x, self.y, 'E', BackgroundFlag::Set);
-    }
     
     pub fn clear(&self, mut window: &Root) {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
@@ -113,4 +109,6 @@ impl GameObject for Enemy {
         self.x = position.0;
         self.y = position.1;
     }
+
+    fn get_symbol(&self) -> char { 'E' }
 }

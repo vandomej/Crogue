@@ -57,10 +57,6 @@ impl Player {
         game_object::GameObject::move_object(self, tiles, proposed_position).unwrap()
     }
 
-    pub fn draw(&self, mut window: &Root) {
-        window.put_char(self.x, self.y, '@', BackgroundFlag::Set);
-    }
-
     pub fn draw_hud(&self, window: &Root) {
         self.draw_health(self.head, "H ", 0, window);
         self.draw_health(self.arms.0, "AL", 1, window);
@@ -155,4 +151,6 @@ impl game_object::GameObject for Player {
         self.x = position.0;
         self.y = position.1;
     }
+
+    fn get_symbol(&self) -> char { '@' }
 }
