@@ -17,6 +17,7 @@ pub struct Enemy {
     attack_cooldown: i32,
     attack_time: i32, // The number of frames in between each attack
     map: Dijkstra<'static>,
+    damage: i32
 }
 
 impl Enemy {
@@ -31,6 +32,7 @@ impl Enemy {
             attack_cooldown,
             attack_time: 0,
             map: Dijkstra::new_from_map(map.clone(), 0_f32),
+            damage: 15
         };
     }
 
@@ -44,7 +46,7 @@ impl Enemy {
             self.attack_time += 1;
         } 
         else if player.is_adjacent_to(self) {
-            player.calculate_damage(15);
+            player.calculate_damage(self.damage);
             self.attack_time = 0;
         }
         else if let Some(position) = self.map.walk_one_step() {
