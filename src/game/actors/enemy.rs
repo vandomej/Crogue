@@ -15,7 +15,8 @@ pub struct Enemy {
     torso: i32,
     legs: (i32, i32),
     attack_cooldown: i32,
-    attack_time: i32 // The number of frames in between each attack
+    attack_time: i32, // The number of frames in between each attack
+    damage: i32
 }
 
 impl Enemy {
@@ -28,7 +29,8 @@ impl Enemy {
             torso: 100,
             legs: (100, 100),
             attack_cooldown,
-            attack_time: 0
+            attack_time: 0,
+            damage: 15
         };
     }
 
@@ -38,7 +40,7 @@ impl Enemy {
             self.attack_time += 1;
         }
         else if player.is_adjacent_to(self) {
-            player.calculate_damage(15);
+            player.calculate_damage(self.damage);
             self.attack_time = 0;
         }
     }
