@@ -1,4 +1,5 @@
 use std::io;
+use tcod::console::*;
 
 use game::map::tile::Tile;
 
@@ -6,6 +7,13 @@ pub trait GameObject {
     fn get_position(&self) -> (i32, i32);
 
     fn set_position(&mut self, position: (i32, i32));
+
+    fn get_symbol(&self) -> char;
+
+    fn draw(&self, mut window: &Root) {
+        let (x, y) = self.get_position();
+        window.put_char(x, y, self.get_symbol(), BackgroundFlag::Set);
+    }
 
     fn move_object(&mut self, tiles: &Vec<Box<Tile>>, position: (i32, i32)) -> Result<bool, io::Error> {
         let (x, y) = self.get_position();
@@ -17,13 +25,13 @@ pub trait GameObject {
         for tile in tiles {
             if tile.get_x() == proposed_x &&
             tile.get_y() == proposed_y &&
-            tile.get_walkable() == true {
-                self.set_position(position);
-                return Ok(true);
+            tile.get_walkable() == false {
+                return Ok(false);
             }
         }
 
-        Ok(false)
+        self.set_position(position);
+        Ok(true)
     }
 
     fn is_adjacent_to<T>(&self, other: &T) -> bool

@@ -10,6 +10,7 @@ use game::map::mapgen;
 use game::map::tile::Tile;
 use config::*;
 use game::actors::health;
+use game::actors::game_object::GameObject;
 use game::actors::health::Health;
 
 
@@ -18,32 +19,34 @@ pub struct Scene {
     enemies: Vec<Enemy>,
     map: Map,
     tiles: Vec<Box<Tile>>,
-    recalc_fov: bool
+    recalculate_map: bool
 }
 
 impl Scene {
     pub fn new() -> Scene {
         let (map, tiles) = mapgen::bsp_gen();
         return Scene {
-            player: Player::new(27, 25),
-            enemies: vec![Enemy::new(32, 25, 10)],
-            recalc_fov: true,
+            player: Player::new(15, 25),
+            enemies: vec![
+                Enemy::new(70, 25, 10, &map),
+                Enemy::new(50, 30, 10, &map)],
+            recalculate_map: true,
             map,
             tiles,
-        }
+        };
     }
 
     pub fn update(&mut self, key: Option<Key>) {
         let fov = if CONFIG.game.see_all { 300 } else { CONFIG.game.fov };
-        if self.recalc_fov {
+        if self.recalculate_map {
             self.map.compute_fov(self.player.x, self.player.y, fov, true, FovAlgorithm::Basic);
         }
 
-        self.recalc_fov = self.player.update(key, &self.tiles);
-
         for enemy in &mut self.enemies {
-            enemy.update(&self.tiles, &mut self.player);
+            enemy.update(&mut self.player, self.recalculate_map);
         }
+
+        self.recalculate_map = self.player.update(key, &self.tiles);
     }
 
     pub fn draw(&self, window: &Root) {
@@ -65,8 +68,8 @@ impl Scene {
             health::draw_health_bar(enemy, window);
             enemy.draw(window);
         }
+        
         health::draw_health_bar(&self.player, window);
-
         self.player.draw(window);
         self.player.draw_hud(window);
     }

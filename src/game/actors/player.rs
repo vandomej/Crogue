@@ -30,13 +30,11 @@ impl Player {
     }
 
     pub fn update(&mut self, key: Option<Key>, tiles: &Vec<Box<Tile>>) -> bool {
-        let mut recalc_fov = false;
-
-        if key.is_some() && key.unwrap().pressed {
-            recalc_fov = self.handle_key(key, tiles);
+        return if key.is_some() && key.unwrap().pressed {
+            self.handle_key(key, tiles)
+        } else {
+            false
         }
-
-        return recalc_fov;
     }
 
     fn handle_key(&mut self, key: Option<Key>, tiles: &Vec<Box<Tile>>) -> bool {
@@ -55,10 +53,6 @@ impl Player {
 
         let proposed_position = (self.x + proposed_x, self.y + proposed_y);
         game_object::GameObject::move_object(self, tiles, proposed_position).unwrap()
-    }
-
-    pub fn draw(&self, mut window: &Root) {
-        window.put_char(self.x, self.y, '@', BackgroundFlag::Set);
     }
 
     pub fn draw_hud(&self, window: &Root) {
@@ -155,4 +149,6 @@ impl game_object::GameObject for Player {
         self.x = position.0;
         self.y = position.1;
     }
+
+    fn get_symbol(&self) -> char { '@' }
 }
