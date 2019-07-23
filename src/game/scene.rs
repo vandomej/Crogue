@@ -26,8 +26,10 @@ impl Scene {
     pub fn new() -> Scene {
         let (map, tiles) = mapgen::bsp_gen();
         return Scene {
-            player: Player::new(27, 25),
-            enemies: vec![Enemy::new(32, 25, 10)],
+            player: Player::new(15, 25),
+            enemies: vec![
+                Enemy::new(70, 25, 10, map.clone()),
+                Enemy::new(50, 30, 10, map.clone())],
             recalc_fov: true,
             map,
             tiles,
@@ -43,7 +45,7 @@ impl Scene {
         self.recalc_fov = self.player.update(key, &self.tiles);
 
         for enemy in &mut self.enemies {
-            enemy.update(self.map.clone(), &mut self.player);
+            enemy.update(&mut self.player);
         }
     }
 

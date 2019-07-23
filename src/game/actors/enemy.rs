@@ -3,11 +3,10 @@ use tcod::console::*;
 use tcod::map::Map;
 use tcod::pathfinding::Dijkstra;
 
-use game::actors::player::Player;
-use game::actors::health::Health;
 use game::actors::game_object::GameObject;
+use game::actors::health::Health;
+use game::actors::player::Player;
 
-#[derive(Debug)]
 pub struct Enemy {
     pub x: i32,
     pub y: i32,
@@ -16,37 +15,56 @@ pub struct Enemy {
     torso: i32,
     legs: (i32, i32),
     attack_cooldown: i32,
-    attack_time: i32 // The number of frames in between each attack
+    attack_time: i32, // The number of frames in between each attack
+    map: Dijkstra<'static>,
+    player_last_position: (i32, i32),
 }
 
 impl Enemy {
-    pub fn new(x: i32, y: i32, attack_cooldown: i32) -> Enemy {
+    pub fn new(x: i32, y: i32, attack_cooldown: i32, map: Map) -> Enemy {
         return Enemy {
-            x, 
+            x,
             y,
             head: 100,
             arms: (100, 100),
             torso: 100,
             legs: (100, 100),
             attack_cooldown,
-            attack_time: 0
+            attack_time: 0,
+            map: Dijkstra::new_from_map(map, 0_f32),
+            player_last_position: (0, 0),
         };
     }
 
-    pub fn update(&mut self, map: Map, player: &mut Player) {
-        // Pathfind to the player
-        let d = Dijkstra::new_from_map(map, 0f32);
-
+    pub fn update(&mut self, player: &mut Player) {
         // When attack_time reaches attack_cooldown, the enemy can attack
         if self.attack_time < self.attack_cooldown {
             self.attack_time += 1;
-        }
+        } 
         else if player.is_adjacent_to(self) {
             player.calculate_damage(15);
             self.attack_time = 0;
+        } 
+        else {
+            // Calculate the path to the player.
+            // TODO: Change player_last_position to use a callback
+            // everytime the player moves to recompute the djikstra map.
+
+            if self.player_last_position != player.get_position() {
+                let root = self.get_position();
+                self.map.compute_grid(root);
+                self.player_last_position = player.get_position();
+                self.map.find(player.get_position());
+            }
+
+            // Moving towards the player
+            if let Some(position) = self.map.walk_one_step() {
+                self.set_position(position);
+                self.attack_time = 0;
+            }
         }
     }
-    
+
     pub fn clear(&self, mut window: &Root) {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
@@ -73,9 +91,12 @@ impl Health for Enemy {
         self.head = value;
     }
 
-    fn set_arms(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error>{
+    fn set_arms(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error> {
         if value.len() < 2 {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "Error setting arm health for enemy. This enemy has two arms."));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "Error setting arm health for enemy. This enemy has two arms.",
+            ));
         }
 
         self.arms.0 = value[0];
@@ -90,7 +111,10 @@ impl Health for Enemy {
 
     fn set_legs(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error> {
         if value.len() < 2 {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "Error setting leg health for enemy. This enemy has two legs."));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "Error setting leg health for enemy. This enemy has two legs.",
+            ));
         }
 
         self.legs.0 = value[0];
