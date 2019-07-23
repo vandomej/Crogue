@@ -2,6 +2,7 @@ use tcod::input::Key;
 use tcod::console::*;
 use tcod::map::Map;
 use tcod::map::FovAlgorithm;
+use tcod::colors;
 
 use super::actors::player::Player;
 use super::actors::enemy::Enemy;
@@ -9,6 +10,7 @@ use game::map::mapgen;
 use game::map::tile::Tile;
 use config::*;
 use game::actors::health;
+use game::actors::health::Health;
 
 
 pub struct Scene {
@@ -45,6 +47,14 @@ impl Scene {
     }
 
     pub fn draw(&self, window: &Root) {
+        if self.player.is_dead() {
+            self.draw_player_death_screen(&window);
+        } else {
+            self.draw_scene(&window);
+        }
+    }
+
+    fn draw_scene(&self, window: &Root) {
         for tile in &self.tiles {
             if self.map.is_in_fov(tile.get_x(), tile.get_y()) {
                 tile.draw(window);
@@ -59,6 +69,17 @@ impl Scene {
 
         self.player.draw(window);
         self.player.draw_hud(window);
+    }
+
+    fn draw_player_death_screen(&self, mut window: &Root) {
+        let foreground_color = colors::WHITE;
+        let background_color = window.get_default_background();
+
+        let mut line = format!("{:2}", "YOU HAVE DIED.");
+
+        for (i, c) in line.chars().enumerate() {
+            window.put_char_ex(i as i32, 1, c, foreground_color, background_color)
+        }
     }
 
     pub fn clear(&self, window: &Root) {
