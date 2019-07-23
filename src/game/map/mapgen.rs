@@ -244,14 +244,13 @@ pub fn generate_rooms(frames: &Vec<Room>) -> Vec<Room> {
 
 pub fn generate_frames() -> Vec<Room> {
     let mut bsp = Bsp::new_with_size(0, 0, CONFIG.game.screen_width - 1, CONFIG.game.screen_height - 1);
-    let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
+    let mut rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
     let mut frames: Vec<Room> = Vec::new();
-    bsp.split_recursive(Some(rng), CONFIG.bsp.recursion_levels, 
+    bsp.split_recursive(Some(&mut rng), CONFIG.bsp.recursion_levels, 
                         CONFIG.bsp.min_horizontal_size, 
                         CONFIG.bsp.min_vertical_size, 
                         CONFIG.bsp.max_horizontal_ratio, 
                         CONFIG.bsp.max_vertical_ratio);
-    let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
     bsp.traverse(TraverseOrder::LevelOrder, | node | {
         if node.is_leaf() {
             frames.push(

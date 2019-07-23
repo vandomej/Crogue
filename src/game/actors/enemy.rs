@@ -1,7 +1,8 @@
 use std::io;
 use tcod::console::*;
+use tcod::map::Map;
+use tcod::pathfinding::Dijkstra;
 
-use game::map::tile::Tile;
 use game::actors::player::Player;
 use game::actors::health::Health;
 use game::actors::game_object::GameObject;
@@ -32,7 +33,10 @@ impl Enemy {
         };
     }
 
-    pub fn update(&mut self, tiles: &Vec<Box<Tile>>, player: &mut Player) {
+    pub fn update(&mut self, map: Map, player: &mut Player) {
+        // Pathfind to the player
+        let d = Dijkstra::new_from_map(map, 0f32);
+
         // When attack_time reaches attack_cooldown, the enemy can attack
         if self.attack_time < self.attack_cooldown {
             self.attack_time += 1;

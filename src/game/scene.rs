@@ -41,7 +41,7 @@ impl Scene {
         self.recalc_fov = self.player.update(key, &self.tiles);
 
         for enemy in &mut self.enemies {
-            enemy.update(&self.tiles, &mut self.player);
+            enemy.update(self.map.clone(), &mut self.player);
         }
     }
 
