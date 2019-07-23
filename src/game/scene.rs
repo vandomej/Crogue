@@ -19,32 +19,41 @@ pub struct Scene {
     enemies: Vec<Enemy>,
     map: Map,
     tiles: Vec<Box<Tile>>,
-    recalc_fov: bool
+    recalculate_map: bool
 }
 
 impl Scene {
     pub fn new() -> Scene {
         let (map, tiles) = mapgen::bsp_gen();
-        return Scene {
+        let mut scene = Scene {
             player: Player::new(15, 25),
             enemies: vec![
                 Enemy::new(70, 25, 10, map.clone()),
                 Enemy::new(50, 30, 10, map.clone())],
-            recalc_fov: true,
+            recalculate_map: true,
             map,
             tiles,
+        };
+
+        for enemy in &mut scene.enemies {
+            enemy.recalculate_dijkstra(scene.player.get_position());
         }
+
+        return scene;
     }
 
     pub fn update(&mut self, key: Option<Key>) {
         let fov = if CONFIG.game.see_all { 300 } else { CONFIG.game.fov };
-        if self.recalc_fov {
+        if self.recalculate_map {
             self.map.compute_fov(self.player.x, self.player.y, fov, true, FovAlgorithm::Basic);
         }
 
-        self.recalc_fov = self.player.update(key, &self.tiles);
+        self.recalculate_map = self.player.update(key, &self.tiles);
 
         for enemy in &mut self.enemies {
+            if self.recalculate_map == true {
+                enemy.recalculate_dijkstra(self.player.get_position());
+            }
             enemy.update(&mut self.player);
         }
     }

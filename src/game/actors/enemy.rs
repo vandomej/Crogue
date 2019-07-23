@@ -17,7 +17,6 @@ pub struct Enemy {
     attack_cooldown: i32,
     attack_time: i32, // The number of frames in between each attack
     map: Dijkstra<'static>,
-    player_last_position: (i32, i32),
 }
 
 impl Enemy {
@@ -32,7 +31,6 @@ impl Enemy {
             attack_cooldown,
             attack_time: 0,
             map: Dijkstra::new_from_map(map, 0_f32),
-            player_last_position: (0, 0),
         };
     }
 
@@ -45,28 +43,20 @@ impl Enemy {
             player.calculate_damage(15);
             self.attack_time = 0;
         } 
-        else {
-            // Calculate the path to the player.
-            // TODO: Change player_last_position to use a callback
-            // everytime the player moves to recompute the djikstra map.
-
-            if self.player_last_position != player.get_position() {
-                let root = self.get_position();
-                self.map.compute_grid(root);
-                self.player_last_position = player.get_position();
-                self.map.find(player.get_position());
-            }
-
-            // Moving towards the player
-            if let Some(position) = self.map.walk_one_step() {
-                self.set_position(position);
-                self.attack_time = 0;
-            }
+        else if let Some(position) = self.map.walk_one_step() {
+            self.set_position(position);
+            self.attack_time = 0;
         }
     }
 
     pub fn clear(&self, mut window: &Root) {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
+    }
+
+    pub fn recalculate_dijkstra(&mut self, destination: (i32, i32)) {
+        let root = self.get_position();
+        self.map.compute_grid(root);
+        self.map.find(destination);
     }
 }
 

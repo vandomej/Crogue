@@ -42,10 +42,4 @@ pub trait GameObject {
 
         return (x2 <= x1 + 1) && (x2 >= x1 - 1) && (y2 <= y1 + 1) && (y2 >= y1 - 1) 
     }
-
-    // fn find_path<T>(&self, target: &T)
-    //     where T: GameObject
-    // {
-
-    // }
 }

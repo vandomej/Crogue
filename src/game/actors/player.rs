@@ -30,13 +30,11 @@ impl Player {
     }
 
     pub fn update(&mut self, key: Option<Key>, tiles: &Vec<Box<Tile>>) -> bool {
-        let mut recalc_fov = false;
-
-        if key.is_some() && key.unwrap().pressed {
-            recalc_fov = self.handle_key(key, tiles);
+        return if key.is_some() && key.unwrap().pressed {
+            self.handle_key(key, tiles)
+        } else {
+            false
         }
-
-        return recalc_fov;
     }
 
     fn handle_key(&mut self, key: Option<Key>, tiles: &Vec<Box<Tile>>) -> bool {
