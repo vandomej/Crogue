@@ -20,7 +20,7 @@ pub struct Enemy {
 }
 
 impl Enemy {
-    pub fn new(x: i32, y: i32, attack_cooldown: i32, map: Map) -> Enemy {
+    pub fn new(x: i32, y: i32, attack_cooldown: i32, map: &Map) -> Enemy {
         return Enemy {
             x,
             y,
@@ -30,11 +30,15 @@ impl Enemy {
             legs: (100, 100),
             attack_cooldown,
             attack_time: 0,
-            map: Dijkstra::new_from_map(map, 0_f32),
+            map: Dijkstra::new_from_map(map.clone(), 0_f32),
         };
     }
 
-    pub fn update(&mut self, player: &mut Player) {
+    pub fn update(&mut self, player: &mut Player, recalculate: bool) {
+        if recalculate == true {
+            self.recalculate_dijkstra(player.get_position());
+        }
+        
         // When attack_time reaches attack_cooldown, the enemy can attack
         if self.attack_time < self.attack_cooldown {
             self.attack_time += 1;
@@ -42,7 +46,7 @@ impl Enemy {
         else if player.is_adjacent_to(self) {
             player.calculate_damage(15);
             self.attack_time = 0;
-        } 
+        }
         else if let Some(position) = self.map.walk_one_step() {
             self.set_position(position);
             self.attack_time = 0;
@@ -53,7 +57,7 @@ impl Enemy {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
 
-    pub fn recalculate_dijkstra(&mut self, destination: (i32, i32)) {
+    fn recalculate_dijkstra(&mut self, destination: (i32, i32)) {
         let root = self.get_position();
         self.map.compute_grid(root);
         self.map.find(destination);
