@@ -8,8 +8,7 @@ use game::actors::health::Health;
 use game::actors::player::Player;
 
 pub struct Enemy {
-    pub x: i32,
-    pub y: i32,
+    pub xy: (i32, i32),
     head: i32,
     arms: (i32, i32),
     torso: i32,
@@ -21,10 +20,9 @@ pub struct Enemy {
 }
 
 impl Enemy {
-    pub fn new(x: i32, y: i32, attack_cooldown: i32, map: &Map) -> Enemy {
+    pub fn new(xy: (i32, i32) , attack_cooldown: i32, map: &Map) -> Enemy {
         return Enemy {
-            x,
-            y,
+            xy,
             head: 100,
             arms: (100, 100),
             torso: 100,
@@ -56,7 +54,8 @@ impl Enemy {
     }
 
     pub fn clear(&self, mut window: &Root) {
-        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
+        let (x, y) = self.xy;
+        window.put_char(x, y, ' ', BackgroundFlag::Set);
     }
 
     fn recalculate_dijkstra(&mut self, destination: (i32, i32)) {
@@ -126,12 +125,11 @@ impl Health for Enemy {
 
 impl GameObject for Enemy {
     fn get_position(&self) -> (i32, i32) {
-        (self.x, self.y)
+        self.xy
     }
 
-    fn set_position(&mut self, position: (i32, i32)) {
-        self.x = position.0;
-        self.y = position.1;
+    fn set_position(&mut self, xy: (i32, i32)) {
+        self.xy = xy;
     }
 
     fn get_symbol(&self) -> char { 'E' }

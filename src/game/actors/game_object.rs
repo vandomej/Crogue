@@ -33,8 +33,7 @@ pub trait GameObject {
         Ok(true)
     }
 
-    fn is_adjacent_to<T>(&self, other: &T) -> bool
-        where T: GameObject
+    fn is_adjacent_to(&self, other: &GameObject) -> bool
     {
         let (x1, y1) = self.get_position();
         let (x2, y2) = other.get_position();

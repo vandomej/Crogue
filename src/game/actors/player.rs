@@ -9,8 +9,7 @@ use game::actors::game_object;
 
 #[derive(Debug, Clone)]
 pub struct Player {
-    pub x: i32,
-    pub y: i32,
+    pub xy: (i32, i32),
     head: i32,
     arms: (i32, i32),
     torso: i32,
@@ -18,10 +17,9 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(x: i32, y: i32) -> Player {
+    pub fn new(xy: (i32, i32)) -> Player {
         return Player {
-            x, 
-            y,
+            xy,
             head: 100,
             arms: (100, 100),
             torso: 100,
@@ -51,7 +49,8 @@ impl Player {
             _ => {},
         }
 
-        let proposed_position = (self.x + proposed_x, self.y + proposed_y);
+        let (x, y) = self.xy;
+        let proposed_position = (x + proposed_x, y + proposed_y);
         game_object::GameObject::move_object(self, tiles, proposed_position).unwrap()
     }
 
@@ -84,7 +83,7 @@ impl Player {
     }
 
     pub fn clear(&self, mut window: &Root) {
-        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
+        window.put_char(self.xy.0, self.xy.1, ' ', BackgroundFlag::Set);
     }
 }
 
@@ -142,12 +141,11 @@ impl health::Health for Player {
 
 impl game_object::GameObject for Player {
     fn get_position(&self) -> (i32, i32) {
-        (self.x, self.y)
+        self.xy
     }
 
-    fn set_position(&mut self, position: (i32, i32)) {
-        self.x = position.0;
-        self.y = position.1;
+    fn set_position(&mut self, xy: (i32, i32)) {
+        self.xy = xy;
     }
 
     fn get_symbol(&self) -> char { '@' }

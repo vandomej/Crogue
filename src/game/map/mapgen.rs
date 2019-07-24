@@ -13,14 +13,12 @@ struct Map {
 */
 
 pub struct Room {
-    x: i32,
-    y: i32,
-    w: i32,
-    h: i32,
+    xy: (i32, i32),
+    wh: (i32, i32),
     walls: Vec<Line>
 }
 
-fn create_tile(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
+fn create_tile((w, h): (i32, i32), (map_width, map_height): (i32, i32)) -> Box<Tile> {
     if w == 0 || w == map_width-1 || h == 0 || h == map_height-1 || (w % 3 == 1 && h % 2 == 1) {
         Box::new(Wall::new((w, h)))
     } else {
@@ -28,13 +26,13 @@ fn create_tile(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
     }
 }
 
-pub fn dummy_gen(map_width: i32, map_height: i32) -> (Map, Vec<Box<Tile>>) {
+pub fn dummy_gen((map_w, map_h): (i32, i32)) -> (Map, Vec<Box<Tile>>) {
     let mut tiles: Vec<Box<Tile>> = Vec::new();
-    let mut map = Map::new(map_width, map_height);
+    let mut map = Map::new(map_w, map_h);
 
-    for h in 0..map_height {
-        for w in 0..map_width {
-            let tile = create_tile(w, h, map_width, map_height);
+    for h in 0..map_w {
+        for w in 0..map_h {
+            let tile = create_tile((w, h), (map_w, map_h));
 
             map.set(w, h, tile.get_see_through(), tile.get_walkable());
             tiles.push(tile);
@@ -44,52 +42,50 @@ pub fn dummy_gen(map_width: i32, map_height: i32) -> (Map, Vec<Box<Tile>>) {
     return (map, tiles);
 }
 
-pub fn empty_gen(map_width: i32, map_height: i32) -> (Map, Vec<Box<Tile>>) {
+pub fn empty_gen((map_width, map_height): (i32, i32)) -> (Map, Vec<Box<Tile>>) {
     let mut tiles: Vec<Box<Tile>> = Vec::new();
     let mut map = Map::new(map_width, map_height);
 
     for h in 0..map_height {
         for w in 0..map_width {
-            new_floor(&mut map, &mut tiles, w, h);
+            new_floor(&mut map, &mut tiles, (w, h));
         }
     }
-    draw_box(&mut map, &mut tiles, 0, 0, map_width - 1, map_height - 1);
+    draw_box(&mut map, &mut tiles, (0, 0), (map_width - 1, map_height - 1));
 
     return (map, tiles);
 }
 
-fn new_floor(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32) {
-    let tile = Box::new(Floor::new((x, y)));
-    map.set(x, y, tile.get_see_through(), tile.get_walkable());
+fn new_floor(map: &mut Map, tiles: &mut Vec<Box<Tile>>, xy: (i32, i32)) {
+    let tile = Box::new(Floor::new(xy));
+    map.set(xy.0, xy.1, tile.get_see_through(), tile.get_walkable());
     tiles.push(tile);
 }
 
-fn new_wall(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32) {
-    let tile = Box::new(Wall::new((x, y)));
+fn new_wall(map: &mut Map, tiles: &mut Vec<Box<Tile>>, xy: (i32, i32)) {
+    let tile = Box::new(Wall::new(xy));
     let see_through = if CONFIG.game.see_all { true } else { tile.get_see_through() };
-    map.set(x, y, see_through, tile.get_walkable());
+    map.set(xy.0, xy.1, see_through, tile.get_walkable());
     tiles.push(tile);
 }
 
-fn draw_box(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32, w: i32, h: i32) {
+fn draw_box(map: &mut Map, tiles: &mut Vec<Box<Tile>>, (x, y): (i32, i32), (w, h): (i32, i32)) {
     for i in x..w {
-        new_wall(map, tiles, i, y);
-        new_wall(map, tiles, i, h);
+        new_wall(map, tiles, (i, y));
+        new_wall(map, tiles, (i, h));
     }
     for i in y..h {
-        new_wall(map, tiles, x, i);
-        new_wall(map, tiles, w, i);
+        new_wall(map, tiles, (x, i));
+        new_wall(map, tiles, (w, i));
     }
-    new_wall(&mut *map, &mut *tiles, w, h);
+    new_wall(&mut *map, &mut *tiles, (w, h));
 }
 
 fn gen_room(room: &Room, rng: &Rng, frame: bool, min_area: i32) -> Option<Room> {
-    let x = room.x;
-    let y = room.y;
-    let w = room.w;
-    let h = room.h;
+    let (x, y) = room.xy;
+    let (w, h) = room.wh;
 
-    if room.w * room.h < min_area {
+    if w * h < min_area {
        return None;
     }
 
@@ -129,10 +125,10 @@ fn gen_room(room: &Room, rng: &Rng, frame: bool, min_area: i32) -> Option<Room> 
        '═' 186
     //═║╔╗╚╝
     */
-    return Some(Room {x: x1, y: y1, w: x2 - x1, h: y2 - y1, walls: Vec::new()});
+    return Some(Room {xy: (x1, y1), wh: (x2 - x1, y2 - y1), walls: Vec::new()});
 }
 
-pub fn get_walls(x: i32,y: i32,w: i32,h: i32) -> Vec<((i32, i32), (i32, i32))> {
+pub fn get_walls((x, y): (i32, i32), (w, h): (i32, i32)) -> Vec<((i32, i32), (i32, i32))> {
     vec![
         ((x,y),(x + w, y)),
         ((x,y),(x, y + h)),
@@ -143,8 +139,8 @@ pub fn get_walls(x: i32,y: i32,w: i32,h: i32) -> Vec<((i32, i32), (i32, i32))> {
 
 fn within_another_room(wall: (i32, i32), rooms: &Vec<Room>) -> bool {
     for room in rooms {
-        if wall.0 > room.x && wall.0 < (room.x + room.w) &&
-           wall.1 > room.y && wall.1 < (room.y + room.h) {
+        if wall.0 > room.xy.0 && wall.0 < (room.xy.0 + room.wh.0) &&
+           wall.1 > room.xy.1 && wall.1 < (room.xy.1 + room.wh.1) {
             return true;
         }
     }
@@ -158,16 +154,16 @@ pub fn add_to_map(rooms: Vec<Room>, m: Map, t: Vec<Box<Tile>>) -> (Map, Vec<Box<
 
     for room in &rooms {
 
-        if !within_another_room((room.x, room.y), &rooms) {
-            new_wall(&mut map, &mut tiles, room.x, room.y);
+        if !within_another_room(room.xy, &rooms) {
+            new_wall(&mut map, &mut tiles, room.xy);
         }
 
-        for wall in get_walls(room.x, room.y, room.w, room.h) {
+        for wall in get_walls(room.xy, room.wh) {
             let mut line = Line::new(wall.0, wall.1);
 
             while let Some(w) = line.step() {
-                if !within_another_room((w.0, w.1), &rooms) {
-                    new_wall(&mut map, &mut tiles, w.0, w.1)
+                if !within_another_room(w, &rooms) {
+                    new_wall(&mut map, &mut tiles, w)
                 }
             }
         }
@@ -176,8 +172,8 @@ pub fn add_to_map(rooms: Vec<Room>, m: Map, t: Vec<Box<Tile>>) -> (Map, Vec<Box<
 }
 
 fn generate_connecting_hallway(r1: &Room, r2: &Room) -> (Room, Room) {
-    let center_r1: (i32, i32) = (r1.x + r1.w/2, r1.y + r1.h/2);
-    let center_r2: (i32, i32) = (r2.x + r2.w/2, r2.y + r2.h/2);
+    let center_r1: (i32, i32) = (r1.xy.0 + r1.wh.0/2, r1.xy.1 + r1.wh.1/2);
+    let center_r2: (i32, i32) = (r2.xy.0 + r2.wh.0/2, r2.xy.1 + r2.wh.1/2);
     let center_delta: (i32, i32) = (center_r2.0 - center_r1.0, center_r2.1 - center_r1.1);
 
     let hallway_horiz_xy = if center_delta.0 >= 0 {
@@ -193,18 +189,14 @@ fn generate_connecting_hallway(r1: &Room, r2: &Room) -> (Room, Room) {
     };
 
     let hallway_horizontal = Room {
-        x: hallway_horiz_xy.0,
-        y: hallway_horiz_xy.1,
-        w: center_delta.0.abs() + 1,
-        h: 2,
+        xy: hallway_horiz_xy,
+        wh: (center_delta.0.abs() + 1, 2),
         walls: Vec::new()
     };
 
     let hallway_vertical = Room {
-        x: hallway_vert_xy.0,
-        y: hallway_vert_xy.1,
-        w: 2,
-        h: center_delta.1.abs() + 1,
+        xy: hallway_vert_xy,
+        wh: (2, center_delta.1.abs() + 1),
         walls: Vec::new()
     };
 
@@ -255,10 +247,8 @@ pub fn generate_frames() -> Vec<Room> {
         if node.is_leaf() {
             frames.push(
                 Room {
-                    x: node.x,
-                    y: node.y,
-                    w: node.w,
-                    h: node.h,
+                    xy: (node.x, node.y),
+                    wh: (node.w, node.h),
                     walls: Vec::new(),
                 }
             );
@@ -270,7 +260,7 @@ pub fn generate_frames() -> Vec<Room> {
 
 //single_room(&mut ret.0, &mut ret.1, node.x, node.y, node.w, node.h, &rng, CONFIG.bsp.frame, CONFIG.bsp.min_area);
 pub fn bsp_gen() -> (Map, Vec<Box<Tile>>) {
-    let mut map: (Map, Vec<Box<Tile>>) = empty_gen(CONFIG.game.screen_width, CONFIG.game.screen_height);
+    let mut map: (Map, Vec<Box<Tile>>) = empty_gen((CONFIG.game.screen_width, CONFIG.game.screen_height));
 
     let frames = generate_frames();
     let rooms  = generate_rooms(&frames);
