@@ -23,8 +23,7 @@ pub trait GameObject {
         }
 
         for tile in tiles {
-            if tile.get_x() == proposed_x &&
-            tile.get_y() == proposed_y &&
+            if tile.get_xy() == position &&
             tile.get_walkable() == false {
                 return Ok(false);
             }

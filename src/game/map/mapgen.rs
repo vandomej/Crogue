@@ -22,9 +22,9 @@ pub struct Room {
 
 fn create_tile(w: i32, h: i32, map_width: i32, map_height: i32) -> Box<Tile> {
     if w == 0 || w == map_width-1 || h == 0 || h == map_height-1 || (w % 3 == 1 && h % 2 == 1) {
-        Box::new(Wall::new(w, h))
+        Box::new(Wall::new((w, h)))
     } else {
-        Box::new(Floor::new(w, h))
+        Box::new(Floor::new((w, h)))
     }
 }
 
@@ -59,13 +59,13 @@ pub fn empty_gen(map_width: i32, map_height: i32) -> (Map, Vec<Box<Tile>>) {
 }
 
 fn new_floor(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32) {
-    let tile = Box::new(Floor::new(x, y));
+    let tile = Box::new(Floor::new((x, y)));
     map.set(x, y, tile.get_see_through(), tile.get_walkable());
     tiles.push(tile);
 }
 
 fn new_wall(map: &mut Map, tiles: &mut Vec<Box<Tile>>, x: i32, y: i32) {
-    let tile = Box::new(Wall::new(x, y));
+    let tile = Box::new(Wall::new((x, y)));
     let see_through = if CONFIG.game.see_all { true } else { tile.get_see_through() };
     map.set(x, y, see_through, tile.get_walkable());
     tiles.push(tile);

@@ -59,7 +59,8 @@ impl Scene {
 
     fn draw_scene(&self, window: &Root) {
         for tile in &self.tiles {
-            if self.map.is_in_fov(tile.get_x(), tile.get_y()) {
+            let (x, y) = tile.get_xy();
+            if self.map.is_in_fov(x, y) {
                 tile.draw(window);
             }
         }
