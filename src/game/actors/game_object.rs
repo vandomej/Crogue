@@ -6,7 +6,7 @@ use game::map::tile::Tile;
 pub trait GameObject {
     fn get_position(&self) -> (i32, i32);
 
-    fn set_position(&mut self, position: (i32, i32));
+    fn set_position(&mut self, xy: (i32, i32));
 
     fn get_symbol(&self) -> char;
 
@@ -40,4 +40,24 @@ pub trait GameObject {
 
         return (x2 <= x1 + 1) && (x2 >= x1 - 1) && (y2 <= y1 + 1) && (y2 >= y1 - 1) 
     }
+}
+
+
+macro_rules! implement_gameobject {
+    ($type:ty) => {
+        impl GameObject for $type {
+            fn get_position(&self) -> (i32, i32) {
+                return self.xy;
+            }
+
+            fn set_position(&mut self, xy: (i32, i32)) {
+                self.xy = xy;
+            }
+
+            fn get_symbol(&self) -> char {
+                self.symbol
+            }
+        }
+        
+    };
 }

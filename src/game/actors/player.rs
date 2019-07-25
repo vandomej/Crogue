@@ -5,7 +5,7 @@ use std::io;
 
 use game::map::tile::Tile;
 use game::actors::health;
-use game::actors::game_object;
+use game::actors::game_object::GameObject;
 
 #[derive(Debug, Clone)]
 pub struct Player {
@@ -13,7 +13,8 @@ pub struct Player {
     head: i32,
     arms: (i32, i32),
     torso: i32,
-    legs: (i32, i32)
+    legs: (i32, i32),
+    symbol: char
 }
 
 impl Player {
@@ -23,7 +24,8 @@ impl Player {
             head: 100,
             arms: (100, 100),
             torso: 100,
-            legs: (100, 100)
+            legs: (100, 100),
+            symbol: '@',
         };
     }
 
@@ -51,7 +53,7 @@ impl Player {
 
         let (x, y) = self.xy;
         let proposed_position = (x + proposed_x, y + proposed_y);
-        game_object::GameObject::move_object(self, tiles, proposed_position).unwrap()
+        GameObject::move_object(self, tiles, proposed_position).unwrap()
     }
 
     pub fn draw_hud(&self, window: &Root) {
@@ -139,14 +141,4 @@ impl health::Health for Player {
     }
 }
 
-impl game_object::GameObject for Player {
-    fn get_position(&self) -> (i32, i32) {
-        self.xy
-    }
-
-    fn set_position(&mut self, xy: (i32, i32)) {
-        self.xy = xy;
-    }
-
-    fn get_symbol(&self) -> char { '@' }
-}
+implement_gameobject!(Player);

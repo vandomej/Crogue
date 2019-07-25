@@ -16,7 +16,8 @@ pub struct Enemy {
     attack_cooldown: i32,
     attack_time: i32, // The number of frames in between each attack
     map: Dijkstra<'static>,
-    damage: i32
+    damage: i32,
+    symbol: char,
 }
 
 impl Enemy {
@@ -30,7 +31,8 @@ impl Enemy {
             attack_cooldown,
             attack_time: 0,
             map: Dijkstra::new_from_map(map.clone(), 0_f32),
-            damage: 15
+            damage: 15,
+            symbol: 'E',
         };
     }
 
@@ -123,14 +125,4 @@ impl Health for Enemy {
     }
 }
 
-impl GameObject for Enemy {
-    fn get_position(&self) -> (i32, i32) {
-        self.xy
-    }
-
-    fn set_position(&mut self, xy: (i32, i32)) {
-        self.xy = xy;
-    }
-
-    fn get_symbol(&self) -> char { 'E' }
-}
+implement_gameobject!(Enemy);
