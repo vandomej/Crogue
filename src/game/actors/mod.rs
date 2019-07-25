@@ -1,5 +1,6 @@
 #[macro_use]
 pub mod game_object;
-pub mod player;
+#[macro_use]
 pub mod health;
+pub mod player;
 pub mod enemy;

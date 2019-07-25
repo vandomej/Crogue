@@ -10,9 +10,9 @@ use game::actors::player::Player;
 pub struct Enemy {
     pub xy: (i32, i32),
     head: i32,
-    arms: (i32, i32),
+    arms: Vec<i32>,
     torso: i32,
-    legs: (i32, i32),
+    legs: Vec<i32>,
     attack_cooldown: i32,
     attack_time: i32, // The number of frames in between each attack
     map: Dijkstra<'static>,
@@ -25,9 +25,9 @@ impl Enemy {
         return Enemy {
             xy,
             head: 100,
-            arms: (100, 100),
+            arms: vec![100, 100],
             torso: 100,
-            legs: (100, 100),
+            legs: vec![100, 100],
             attack_cooldown,
             attack_time: 0,
             map: Dijkstra::new_from_map(map.clone(), 0_f32),
@@ -67,62 +67,6 @@ impl Enemy {
     }
 }
 
-impl Health for Enemy {
-    fn get_head(&self) -> i32 {
-        self.head
-    }
-
-    fn get_arms(&self) -> Vec<i32> {
-        vec![self.arms.0, self.arms.1]
-    }
-
-    fn get_torso(&self) -> i32 {
-        self.torso
-    }
-
-    fn get_legs(&self) -> Vec<i32> {
-        vec![self.legs.0, self.legs.1]
-    }
-
-    fn set_head(&mut self, value: i32) {
-        self.head = value;
-    }
-
-    fn set_arms(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error> {
-        if value.len() < 2 {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "Error setting arm health for enemy. This enemy has two arms.",
-            ));
-        }
-
-        self.arms.0 = value[0];
-        self.arms.1 = value[1];
-
-        Ok(value)
-    }
-
-    fn set_torso(&mut self, value: i32) {
-        self.torso = value;
-    }
-
-    fn set_legs(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error> {
-        if value.len() < 2 {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "Error setting leg health for enemy. This enemy has two legs.",
-            ));
-        }
-
-        self.legs.0 = value[0];
-        self.legs.1 = value[1];
-
-        Ok(value)
-    }
-
-    fn is_dead(&self) -> bool {
-        return !(self.head > 0 && self.torso > 0);
-    }
-}
+implement_health!(Enemy);
 
 implement_gameobject!(Enemy);

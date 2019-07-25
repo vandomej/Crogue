@@ -4,16 +4,16 @@ use tcod::colors;
 use std::io;
 
 use game::map::tile::Tile;
-use game::actors::health;
+use game::actors::health::Health;
 use game::actors::game_object::GameObject;
 
 #[derive(Debug, Clone)]
 pub struct Player {
     pub xy: (i32, i32),
     head: i32,
-    arms: (i32, i32),
+    arms: Vec<i32>,
     torso: i32,
-    legs: (i32, i32),
+    legs: Vec<i32>,
     symbol: char
 }
 
@@ -22,9 +22,9 @@ impl Player {
         return Player {
             xy,
             head: 100,
-            arms: (100, 100),
+            arms: vec![100, 100],
             torso: 100,
-            legs: (100, 100),
+            legs: vec![100, 100],
             symbol: '@',
         };
     }
@@ -58,11 +58,11 @@ impl Player {
 
     pub fn draw_hud(&self, window: &Root) {
         self.draw_health(self.head, "H ", 0, window);
-        self.draw_health(self.arms.0, "AL", 1, window);
-        self.draw_health(self.arms.1, "AR", 2, window);
+        self.draw_health(self.arms[0], "AL", 1, window);
+        self.draw_health(self.arms[1], "AR", 2, window);
         self.draw_health(self.torso, "T ", 3, window);
-        self.draw_health(self.legs.0, "LL", 4, window);
-        self.draw_health(self.legs.1, "LR", 5, window);
+        self.draw_health(self.legs[0], "LL", 4, window);
+        self.draw_health(self.legs[1], "LR", 5, window);
     }
 
     fn draw_health(&self, health: i32, label: &str, row: i32, mut window: &Root) {
@@ -89,56 +89,6 @@ impl Player {
     }
 }
 
-impl health::Health for Player {
-    fn get_head(&self) -> i32 {
-        self.head
-    }
-
-    fn get_arms(&self) -> Vec<i32> {
-        vec![self.arms.0, self.arms.1]
-    }
-
-    fn get_torso(&self) -> i32 {
-        self.torso
-    }
-
-    fn get_legs(&self) -> Vec<i32> {
-        vec![self.legs.0, self.legs.1]
-    }
-
-    fn set_head(&mut self, value: i32) {
-        self.head = value;
-    }
-
-    fn set_arms(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error>{
-        if value.len() < 2 {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "Error setting arm health for player, players require at least 2 arm health values to be provided."));
-        }
-
-        self.arms.0 = value[0];
-        self.arms.1 = value[1];
-
-        Ok(value)
-    }
-
-    fn set_torso(&mut self, value: i32) {
-        self.torso = value;
-    }
-
-    fn set_legs(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error> {
-        if value.len() < 2 {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, "Error setting leg health for player, players require at least 2 leg health values to be provided."));
-        }
-
-        self.legs.0 = value[0];
-        self.legs.1 = value[1];
-
-        Ok(value)
-    }
-
-    fn is_dead(&self) -> bool {
-        return !(self.head > 0 && self.torso > 0);
-    }
-}
+implement_health!(Player);
 
 implement_gameobject!(Player);
