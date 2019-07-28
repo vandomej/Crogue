@@ -85,3 +85,77 @@ impl Tile for Floor {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
 }
+
+pub struct StairUp {
+    pub x: i32,
+    pub y: i32,
+    pub walkable: bool,
+    pub see_through: bool
+}
+
+impl Tile for StairUp {
+    fn new(x: i32, y: i32) -> StairUp {
+        return StairUp{x, y, walkable: true, see_through: true};
+    }
+
+    fn get_x(&self) -> i32 {
+        return self.x;
+    }
+
+    fn get_y(&self) -> i32 {
+        return self.y;
+    }
+
+    fn get_walkable(&self) -> bool {
+        return self.walkable;
+    }
+
+    fn get_see_through(&self) -> bool {
+        return self.see_through;
+    }
+
+    fn draw(&self, mut window: &Root) {
+        window.put_char(self.x, self.y, '<', BackgroundFlag::Set);
+    }
+
+    fn clear(&self, mut window: &Root) {
+        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
+    }
+}
+
+pub struct StairDown {
+    pub x: i32,
+    pub y: i32,
+    pub walkable: bool,
+    pub see_through: bool
+}
+
+impl Tile for StairDown {
+    fn new(x: i32, y: i32) -> StairDown {
+        return StairDown{x, y, walkable: true, see_through: true};
+    }
+
+    fn get_x(&self) -> i32 {
+        return self.x;
+    }
+
+    fn get_y(&self) -> i32 {
+        return self.y;
+    }
+
+    fn get_walkable(&self) -> bool {
+        return self.walkable;
+    }
+
+    fn get_see_through(&self) -> bool {
+        return self.see_through;
+    }
+
+    fn draw(&self, mut window: &Root) {
+        window.put_char(self.x, self.y, '>', BackgroundFlag::Set);
+    }
+
+    fn clear(&self, mut window: &Root) {
+        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
+    }
+}
