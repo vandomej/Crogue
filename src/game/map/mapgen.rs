@@ -242,7 +242,7 @@ fn generate_connecting_hallway(r1: &Room, r2: &Room) -> (Room, Room) {
     return (hallway_horizontal, hallway_vertical)
 }
 
-pub fn generate_rooms(frames: &Vec<Room>) -> Vec<Room> {
+pub fn generate_rooms(frames: &Vec<Room>) -> (Vec<Room>, (i32, i32)) {
     let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
     let mut rooms: Vec<Room> = Vec::new();
     let mut hallways: Vec<Room> = Vec::new();
@@ -250,6 +250,8 @@ pub fn generate_rooms(frames: &Vec<Room>) -> Vec<Room> {
     let mut prev_room = 0;
     let mut curr_room = 1;
     let mut rooms_len = 0;
+
+    let mut player_spawn = (0, 0);
 
     for (i, frame) in frames.iter().enumerate() {
         let mut room_type = RoomType::Normal;
@@ -261,6 +263,10 @@ pub fn generate_rooms(frames: &Vec<Room>) -> Vec<Room> {
         }
 
         if let Some(r) = gen_room(frame, &rng, CONFIG.bsp.min_area, room_type) {
+            if i == 0 {
+                player_spawn.0 = r.x + (r.w / 2);
+                player_spawn.1 = r.y + (r.h / 2);
+            }
 
             rooms.push(r);
             rooms_len += 1;
@@ -278,7 +284,7 @@ pub fn generate_rooms(frames: &Vec<Room>) -> Vec<Room> {
     };
 
     rooms.append(&mut hallways);
-    return rooms;
+    return (rooms, player_spawn);
 }
 
 pub fn generate_frames() -> Vec<Room> {
@@ -309,16 +315,16 @@ pub fn generate_frames() -> Vec<Room> {
 }
 
 //single_room(&mut ret.0, &mut ret.1, node.x, node.y, node.w, node.h, &rng, CONFIG.bsp.frame, CONFIG.bsp.min_area);
-pub fn bsp_gen() -> (Map, Vec<Box<Tile>>) {
+pub fn bsp_gen() -> (Map, Vec<Box<Tile>>, (i32, i32)) {
     let mut map: (Map, Vec<Box<Tile>>) = empty_gen(CONFIG.game.screen_width, CONFIG.game.screen_height);
 
     let frames = generate_frames();
-    let rooms  = generate_rooms(&frames);
+    let (rooms, player_spawn) = generate_rooms(&frames);
 
     map = add_to_map(rooms, map.0, map.1);
 
     if CONFIG.bsp.frame {
         map = add_to_map(frames, map.0, map.1);
     }
-    return map;
+    return (map.0, map.1, player_spawn);
 }

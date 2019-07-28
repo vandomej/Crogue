@@ -24,9 +24,9 @@ pub struct Scene {
 
 impl Scene {
     pub fn new() -> Scene {
-        let (map, tiles) = mapgen::bsp_gen();
+        let (map, tiles, player_spawn) = mapgen::bsp_gen();
         return Scene {
-            player: Player::new(15, 25),
+            player: Player::new(player_spawn.0, player_spawn.1),
             enemies: vec![
                 Enemy::new(70, 25, 10, &map),
                 Enemy::new(50, 30, 10, &map)],
@@ -68,7 +68,7 @@ impl Scene {
             health::draw_health_bar(enemy, window);
             enemy.draw(window);
         }
-        
+
         health::draw_health_bar(&self.player, window);
         self.player.draw(window);
         self.player.draw_hud(window);
