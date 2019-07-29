@@ -175,7 +175,7 @@ fn within_another_room(wall: (i32, i32), rooms: &Vec<Room>) -> bool {
     false
 }
 
-pub fn add_to_map(rooms: Vec<Room>, m: Map, t: Vec<Box<Tile>>) -> (Map, Vec<Box<Tile>>){
+pub fn add_to_map(rooms: Vec<Room>, m: Map, t: Vec<Box<Tile>>, first_floor: bool) -> (Map, Vec<Box<Tile>>){
     let mut map = m;
     let mut tiles = t;
 
@@ -197,7 +197,11 @@ pub fn add_to_map(rooms: Vec<Room>, m: Map, t: Vec<Box<Tile>>) -> (Map, Vec<Box<
 
         match room.room_type {
             RoomType::Normal => {},
-            RoomType::Beginning => new_up_staircase(&mut map, &mut tiles, room.x, room.y, room.w, room.h),
+            RoomType::Beginning => {
+                if !first_floor {
+                    new_up_staircase(&mut map, &mut tiles, room.x, room.y, room.w, room.h)
+                }
+            },
             RoomType::Ending => new_down_staircase(&mut map, &mut tiles, room.x, room.y, room.w, room.h)
         }
     }
@@ -242,8 +246,8 @@ fn generate_connecting_hallway(r1: &Room, r2: &Room) -> (Room, Room) {
     return (hallway_horizontal, hallway_vertical)
 }
 
-pub fn generate_rooms(frames: &Vec<Room>) -> (Vec<Room>, (i32, i32)) {
-    let rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
+pub fn generate_rooms(frames: &Vec<Room>, seed: u32) -> (Vec<Room>, (i32, i32)) {
+    let rng = Rng::new_with_seed(Algo::MT, seed);
     let mut rooms: Vec<Room> = Vec::new();
     let mut hallways: Vec<Room> = Vec::new();
 
@@ -287,9 +291,9 @@ pub fn generate_rooms(frames: &Vec<Room>) -> (Vec<Room>, (i32, i32)) {
     return (rooms, player_spawn);
 }
 
-pub fn generate_frames() -> Vec<Room> {
+pub fn generate_frames(seed: u32) -> Vec<Room> {
     let mut bsp = Bsp::new_with_size(0, 0, CONFIG.game.screen_width - 1, CONFIG.game.screen_height - 1);
-    let mut rng = Rng::new_with_seed(Algo::MT, CONFIG.bsp.seed);
+    let mut rng = Rng::new_with_seed(Algo::MT, seed);
     let mut frames: Vec<Room> = Vec::new();
     bsp.split_recursive(Some(&mut rng), CONFIG.bsp.recursion_levels,
                         CONFIG.bsp.min_horizontal_size,
@@ -315,16 +319,16 @@ pub fn generate_frames() -> Vec<Room> {
 }
 
 //single_room(&mut ret.0, &mut ret.1, node.x, node.y, node.w, node.h, &rng, CONFIG.bsp.frame, CONFIG.bsp.min_area);
-pub fn bsp_gen() -> (Map, Vec<Box<Tile>>, (i32, i32)) {
+pub fn bsp_gen(seed: u32, first_floor: bool) -> (Map, Vec<Box<Tile>>, (i32, i32)) {
     let mut map: (Map, Vec<Box<Tile>>) = empty_gen(CONFIG.game.screen_width, CONFIG.game.screen_height);
 
-    let frames = generate_frames();
-    let (rooms, player_spawn) = generate_rooms(&frames);
+    let frames = generate_frames(seed);
+    let (rooms, player_spawn) = generate_rooms(&frames, seed);
 
-    map = add_to_map(rooms, map.0, map.1);
+    map = add_to_map(rooms, map.0, map.1, first_floor);
 
     if CONFIG.bsp.frame {
-        map = add_to_map(frames, map.0, map.1);
+        map = add_to_map(frames, map.0, map.1, first_floor);
     }
     return (map.0, map.1, player_spawn);
 }

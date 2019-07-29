@@ -1,5 +1,10 @@
 use tcod::console::*;
 
+pub enum SceneTransitionType {
+    Up,
+    Down
+}
+
 pub trait Tile {
     fn new(x: i32, y: i32) -> Self where Self: Sized;
     fn get_x(&self) -> i32;
@@ -8,6 +13,7 @@ pub trait Tile {
     fn get_see_through(&self) -> bool;
     fn draw(&self, window: &Root);
     fn clear(&self, window: &Root);
+    fn causes_scene_transitions(&self) -> &Option<SceneTransitionType>;
 }
 
 
@@ -15,12 +21,13 @@ pub struct Wall {
     pub x: i32,
     pub y: i32,
     pub walkable: bool,
-    pub see_through: bool
+    pub see_through: bool,
+    pub causes_scene_transitions: Option<SceneTransitionType>
 }
 
 impl Tile for Wall {
     fn new(x: i32, y: i32) -> Wall {
-        return Wall{x, y, walkable: false, see_through: false};
+        return Wall{x, y, walkable: false, see_through: false, causes_scene_transitions: None};
     }
 
     fn get_x(&self) -> i32 {
@@ -46,6 +53,10 @@ impl Tile for Wall {
     fn clear(&self, mut window: &Root) {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
+
+    fn causes_scene_transitions(&self) -> &Option<SceneTransitionType> {
+        return &self.causes_scene_transitions;
+    }
 }
 
 
@@ -53,12 +64,13 @@ pub struct Floor {
     pub x: i32,
     pub y: i32,
     pub walkable: bool,
-    pub see_through: bool
+    pub see_through: bool,
+    pub causes_scene_transitions: Option<SceneTransitionType>
 }
 
 impl Tile for Floor {
     fn new(x: i32, y: i32) -> Floor {
-        return Floor{x, y, walkable: true, see_through: true};
+        return Floor{x, y, walkable: true, see_through: true, causes_scene_transitions: None};
     }
 
     fn get_x(&self) -> i32 {
@@ -84,18 +96,23 @@ impl Tile for Floor {
     fn clear(&self, mut window: &Root) {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
+
+    fn causes_scene_transitions(&self) -> &Option<SceneTransitionType> {
+        return &self.causes_scene_transitions;
+    }
 }
 
 pub struct StairUp {
     pub x: i32,
     pub y: i32,
     pub walkable: bool,
-    pub see_through: bool
+    pub see_through: bool,
+    pub causes_scene_transitions: Option<SceneTransitionType>
 }
 
 impl Tile for StairUp {
     fn new(x: i32, y: i32) -> StairUp {
-        return StairUp{x, y, walkable: true, see_through: true};
+        return StairUp{x, y, walkable: true, see_through: true, causes_scene_transitions: Some(SceneTransitionType::Up)};
     }
 
     fn get_x(&self) -> i32 {
@@ -121,18 +138,23 @@ impl Tile for StairUp {
     fn clear(&self, mut window: &Root) {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
+
+    fn causes_scene_transitions(&self) -> &Option<SceneTransitionType> {
+        return &self.causes_scene_transitions;
+    }
 }
 
 pub struct StairDown {
     pub x: i32,
     pub y: i32,
     pub walkable: bool,
-    pub see_through: bool
+    pub see_through: bool,
+    pub causes_scene_transitions: Option<SceneTransitionType>
 }
 
 impl Tile for StairDown {
     fn new(x: i32, y: i32) -> StairDown {
-        return StairDown{x, y, walkable: true, see_through: true};
+        return StairDown{x, y, walkable: true, see_through: true, causes_scene_transitions: Some(SceneTransitionType::Down)};
     }
 
     fn get_x(&self) -> i32 {
@@ -157,5 +179,9 @@ impl Tile for StairDown {
 
     fn clear(&self, mut window: &Root) {
         window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
+    }
+
+    fn causes_scene_transitions(&self) -> &Option<SceneTransitionType> {
+        return &self.causes_scene_transitions;
     }
 }
