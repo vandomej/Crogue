@@ -20,7 +20,7 @@ pub struct Player {
 impl Player {
     pub fn new(x: i32, y: i32) -> Player {
         return Player {
-            x, 
+            x,
             y,
             head: 100,
             arms: (100, 100),
@@ -66,7 +66,7 @@ impl Player {
 
     fn draw_health(&self, health: i32, label: &str, row: i32, mut window: &Root) {
         let line = format!("{:2} {: >4} ", label, health);
-        let foreground_color = 
+        let foreground_color =
             if health <= 33 {
                 colors::DARK_RED
             }

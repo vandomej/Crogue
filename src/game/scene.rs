@@ -8,6 +8,7 @@ use super::actors::player::Player;
 use super::actors::enemy::Enemy;
 use game::map::mapgen;
 use game::map::tile::Tile;
+use game::map::tile::SceneTransitionType;
 use config::*;
 use game::actors::health;
 use game::actors::game_object::GameObject;
@@ -23,10 +24,10 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn new() -> Scene {
-        let (map, tiles) = mapgen::bsp_gen();
+    pub fn new(seed: u32, first_floor: bool) -> Scene {
+        let (map, tiles, player_spawn) = mapgen::bsp_gen(seed, first_floor);
         return Scene {
-            player: Player::new(15, 25),
+            player: Player::new(player_spawn.0, player_spawn.1),
             enemies: vec![
                 Enemy::new(70, 25, 10, &map),
                 Enemy::new(50, 30, 10, &map)],
@@ -36,7 +37,8 @@ impl Scene {
         };
     }
 
-    pub fn update(&mut self, key: Option<Key>) {
+    pub fn update(&mut self, key: Option<Key>) -> Option<SceneTransitionType> {
+        let mut scene_transition_type = None;
         let fov = if CONFIG.game.see_all { 300 } else { CONFIG.game.fov };
         if self.recalculate_map {
             self.map.compute_fov(self.player.x, self.player.y, fov, true, FovAlgorithm::Basic);
@@ -47,6 +49,18 @@ impl Scene {
         }
 
         self.recalculate_map = self.player.update(key, &self.tiles);
+
+        for tile in &self.tiles {
+            if self.player.get_position() == (tile.get_x(), tile.get_y()) && self.recalculate_map {
+                match tile.causes_scene_transitions() {
+                    Some(SceneTransitionType::Down) => { scene_transition_type = Some(SceneTransitionType::Down) },
+                    Some(SceneTransitionType::Up) => { scene_transition_type = Some(SceneTransitionType::Up) },
+                    None => {}
+                }
+            }
+        }
+
+        return scene_transition_type;
     }
 
     pub fn draw(&self, window: &Root) {
@@ -68,7 +82,7 @@ impl Scene {
             health::draw_health_bar(enemy, window);
             enemy.draw(window);
         }
-        
+
         health::draw_health_bar(&self.player, window);
         self.player.draw(window);
         self.player.draw_hud(window);
