@@ -69,7 +69,7 @@ impl Player {
 
     fn draw_health(&self, health: i32, label: &str, row: i32, mut window: &Root) {
         let line = format!("{:2} {: >4} ", label, health);
-        let foreground_color = 
+        let foreground_color =
             if health <= 33 {
                 colors::DARK_RED
             }
