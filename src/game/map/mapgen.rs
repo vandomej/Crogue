@@ -252,11 +252,7 @@ pub fn generate_rooms(frames: &Vec<Room>, seed: u32) -> Vec<Room> {
     let mut rooms: Vec<Room> = Vec::new();
     let mut hallways: Vec<Room> = Vec::new();
 
-    let mut player_spawn = (0, 0);
-
     for frame in frames.iter() {
-        let mut room_type = RoomType::Normal;
-
         if let Some(mut r) = gen_room(frame, &rng, CONFIG.bsp.min_area) {
             r.room_type = RoomType::Normal;
             rooms.push(r);
