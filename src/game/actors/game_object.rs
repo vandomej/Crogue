@@ -6,7 +6,7 @@ use game::map::tile::Tile;
 pub trait GameObject {
     fn get_position(&self) -> (i32, i32);
 
-    fn set_position(&mut self, xy: (i32, i32));
+    fn set_position(&mut self, x: i32, y: i32);
 
     fn get_symbol(&self) -> char;
 
@@ -15,21 +15,20 @@ pub trait GameObject {
         window.put_char(x, y, self.get_symbol(), BackgroundFlag::Set);
     }
 
-    fn move_object(&mut self, tiles: &Vec<Box<Tile>>, position: (i32, i32)) -> Result<bool, io::Error> {
-        let (x, y) = self.get_position();
-        let (proposed_x, proposed_y) = position;
-        if (x - proposed_x).abs() > 1 || (y - proposed_y).abs() > 1 {
+    fn move_object(&mut self, tiles: &Vec<Box<Tile>>, x: i32, y: i32) -> Result<bool, io::Error> {
+        let (self_x, self_y) = self.get_position();
+        if (self_x - x).abs() > 1 || (self_y - y).abs() > 1 {
             return Err(io::Error::new(io::ErrorKind::InvalidInput, "Cannot move an object further than an adjacent tile, try using set_position instead."));
         }
 
         for tile in tiles {
-            if tile.get_xy() == position &&
+            if tile.get_position() == (x, y) &&
             tile.get_walkable() == false {
                 return Ok(false);
             }
         }
 
-        self.set_position(position);
+        self.set_position(x, y);
         Ok(true)
     }
 
@@ -47,11 +46,12 @@ macro_rules! implement_gameobject {
     ($type:ty) => {
         impl GameObject for $type {
             fn get_position(&self) -> (i32, i32) {
-                return self.xy;
+                return (self.x, self.y);
             }
 
-            fn set_position(&mut self, xy: (i32, i32)) {
-                self.xy = xy;
+            fn set_position(&mut self, x: i32, y: i32) {
+                self.x = x;
+                self.y = y;
             }
 
             fn get_symbol(&self) -> char {

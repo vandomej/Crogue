@@ -8,7 +8,8 @@ use game::actors::health::Health;
 use game::actors::player::Player;
 
 pub struct Enemy {
-    pub xy: (i32, i32),
+    pub x: i32,
+    pub y: i32,
     head: i32,
     arms: Vec<i32>,
     torso: i32,
@@ -21,9 +22,10 @@ pub struct Enemy {
 }
 
 impl Enemy {
-    pub fn new(xy: (i32, i32) , attack_cooldown: i32, map: &Map) -> Enemy {
+    pub fn new(x: i32, y: i32, attack_cooldown: i32, map: &Map) -> Enemy {
         return Enemy {
-            xy,
+            x,
+            y,
             head: 100,
             arms: vec![100, 100],
             torso: 100,
@@ -38,7 +40,8 @@ impl Enemy {
 
     pub fn update(&mut self, player: &mut Player, recalculate: bool) {
         if recalculate == true {
-            self.recalculate_dijkstra(player.get_position());
+            let (x, y) = player.get_position();
+            self.recalculate_dijkstra(x, y);
         }
         
         // When attack_time reaches attack_cooldown, the enemy can attack
@@ -49,21 +52,20 @@ impl Enemy {
             player.calculate_damage(self.damage);
             self.attack_time = 0;
         }
-        else if let Some(position) = self.map.walk_one_step() {
-            self.set_position(position);
+        else if let Some((x, y)) = self.map.walk_one_step() {
+            self.set_position(x, y);
             self.attack_time = 0;
         }
     }
 
     pub fn clear(&self, mut window: &Root) {
-        let (x, y) = self.xy;
-        window.put_char(x, y, ' ', BackgroundFlag::Set);
+        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
 
-    fn recalculate_dijkstra(&mut self, destination: (i32, i32)) {
+    fn recalculate_dijkstra(&mut self, x: i32, y: i32) {
         let root = self.get_position();
         self.map.compute_grid(root);
-        self.map.find(destination);
+        self.map.find((x, y));
     }
 }
 

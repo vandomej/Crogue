@@ -9,7 +9,8 @@ use game::actors::game_object::GameObject;
 
 #[derive(Debug, Clone)]
 pub struct Player {
-    pub xy: (i32, i32),
+    pub x: i32,
+    pub y: i32,
     head: i32,
     arms: Vec<i32>,
     torso: i32,
@@ -18,9 +19,10 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(xy: (i32, i32)) -> Player {
+    pub fn new(x: i32, y: i32) -> Player {
         return Player {
-            xy,
+            x,
+            y,
             head: 100,
             arms: vec![100, 100],
             torso: 100,
@@ -51,9 +53,9 @@ impl Player {
             _ => {},
         }
 
-        let (x, y) = self.xy;
-        let proposed_position = (x + proposed_x, y + proposed_y);
-        GameObject::move_object(self, tiles, proposed_position).unwrap()
+        let x = self.x;
+        let y = self.y;
+        GameObject::move_object(self, tiles, x + proposed_x, y + proposed_y).unwrap()
     }
 
     pub fn draw_hud(&self, window: &Root) {
@@ -85,7 +87,7 @@ impl Player {
     }
 
     pub fn clear(&self, mut window: &Root) {
-        window.put_char(self.xy.0, self.xy.1, ' ', BackgroundFlag::Set);
+        window.put_char(self.x, self.y, ' ', BackgroundFlag::Set);
     }
 }
 
