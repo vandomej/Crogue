@@ -111,3 +111,61 @@ pub fn draw_health_bar<T>(object: &T, mut window: &Root)
         }
     }
 }
+
+macro_rules! implement_health {
+    ($type:ty) => {
+        impl Health for $type {
+            fn get_head(&self) -> i32 {
+                self.head
+            }
+
+            fn get_arms(&self) -> Vec<i32> {
+                self.arms.clone()
+            }
+
+            fn get_torso(&self) -> i32 {
+                self.torso
+            }
+
+            fn get_legs(&self) -> Vec<i32> {
+                self.legs.clone()
+            }
+
+            fn set_head(&mut self, value: i32) {
+                self.head = value;
+            }
+
+            fn set_arms(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error>{
+                if value.len() != self.arms.len() {
+                    return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Error setting arm health. Expected {} values found {}", self.arms.len(), value.len())));
+                }
+
+                for i in 0..value.len() {
+                    self.arms[i] = value[i];
+                }
+
+                Ok(value)
+            }
+
+            fn set_torso(&mut self, value: i32) {
+                self.torso = value;
+            }
+
+            fn set_legs(&mut self, value: Vec<i32>) -> Result<Vec<i32>, io::Error> {
+                if value.len() != self.legs.len() {
+                    return Err(io::Error::new(io::ErrorKind::InvalidData, format!("Error setting leg health. Expected {} values found {}", self.legs.len(), value.len())));
+                }
+
+                for i in 0..value.len() {
+                    self.legs[i] = value[i];
+                }
+
+                Ok(value)
+            }
+
+            fn is_dead(&self) -> bool {
+                return !(self.head > 0 && self.torso > 0);
+            }
+        }
+    };
+}

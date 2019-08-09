@@ -51,7 +51,7 @@ impl Scene {
         self.recalculate_map = self.player.update(key, &self.tiles);
 
         for tile in &self.tiles {
-            if self.player.get_position() == (tile.get_x(), tile.get_y()) && self.recalculate_map {
+            if self.player.get_position() == tile.get_position() && self.recalculate_map {
                 match tile.causes_scene_transitions() {
                     Some(SceneTransitionType::Down) => { scene_transition_type = Some(SceneTransitionType::Down) },
                     Some(SceneTransitionType::Up) => { scene_transition_type = Some(SceneTransitionType::Up) },
@@ -73,7 +73,8 @@ impl Scene {
 
     fn draw_scene(&self, window: &Root) {
         for tile in &self.tiles {
-            if self.map.is_in_fov(tile.get_x(), tile.get_y()) {
+            let (x, y) = tile.get_position();
+            if self.map.is_in_fov(x, y) {
                 tile.draw(window);
             }
         }

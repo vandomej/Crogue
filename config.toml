@@ -11,6 +11,6 @@ min_horizontal_size  = 5
 min_vertical_size    = 5
 max_horizontal_ratio = 0.9
 max_vertical_ratio   = 1.0
-seed                 = 665
+seed                 = 445
 min_area             = 25
 frame                = false
